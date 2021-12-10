@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+'''Use this to install module'''
+
+from os import path
+from setuptools import setup, find_namespace_packages
+
+install_deps = [
+    'tensorflow==2.7.0',
+    'numpy',
+    'einops',
+    'nibabel'
+]
+
+version = '1.0.0'
+this_dir = path.abspath(path.dirname(__file__))
+with open(path.join(this_dir, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+setup(
+    name='dMRI-RCNN',
+    version=version,
+    description='Diffusion MRI Recurrent CNN for Angular Super-resolution.',
+    author='Matt Lyon',
+    author_email='matthewlyon18@gmail.com',
+    url='https://https://github.com/mattlyon93/dMRI-RCNN',
+    download_url='https://https://github.com/mattlyon93/dMRI-RCNN/archive/v{}.tar.gz'.format(version),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    python_requires='>=3.8',
+    license='MIT License',
+    packages=find_namespace_packages(),
+    install_requires=install_deps,
+    classifiers=[
+        'Programming Language :: Python',
+        'Operating System :: Unix',
+        'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows :: Windows 10'
+    ],
+    # scripts=['PhD/misc/bin/transfer_data.py'],
+    include_package_data=True,
+    keywords=['ai', 'cv', 'computer-vision', 'mri', 'dmri', 'super-resolution', 'cnn']
+)
