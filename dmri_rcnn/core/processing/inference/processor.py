@@ -1,14 +1,15 @@
 '''Inference processor class'''
+import numpy as np
 import tensorflow as tf
 
-from ...io import load_raw_data, save_nifti
+from ...io import load_nifti, load_bvec, save_nifti
 
 from .scaler import Scaler
 from .patcher import Patcher
-from .splitter import Splitter
+from .reshaper import Reshaper
 
 class InferenceProcessor:
-    '''IntraShell pipeline with V3Scaler'''
+    '''Inference pipeline for single-shell data'''
 
     def __init__(self, model, **kwargs):
         '''Initializes processor object
@@ -29,7 +30,7 @@ class InferenceProcessor:
         self.model = model
         self._scaler = Scaler
         self._patcher = Patcher
-        self._splitter = Splitter
+        self._reshaper = Reshaper
         self._config = self._get_config(kwargs)
 
     def _get_config(self, kwargs):
@@ -38,7 +39,7 @@ class InferenceProcessor:
             'shell': kwargs.get('shell', 1000),
             'patch_shape_in': kwargs.get('patch_shape_in', self.model.input[0].shape[-3:]),
             'norms': kwargs.get('norm_val', {1000: 4000.0, 2000: 3000.0, 3000: 2000.0}),
-            'batch_size': kwargs.get('batch_size', 52)
+            'batch_size': kwargs.get('batch_size', 4)
         }
         return config
 
@@ -78,9 +79,9 @@ class InferenceProcessor:
             context (Dict[str,Any]):
                 'affine': (np.ndarray) -> shape (4, 4)
         '''
-        dmri_in, bvec_in, bvec_out, mask, affine = load_raw_data(
-            dmri_in_fpath, bvec_in_fpath, bvec_out_fpath, mask_fpath
-        )
+        dmri_in, affine = load_nifti(dmri_in_fpath)
+        mask, _ = load_nifti(mask_fpath, dtype=np.int8)
+        bvec_in, bvec_out = load_bvec(bvec_in_fpath), load_bvec(bvec_out_fpath)
 
         datasets = {
             'mask': mask,
@@ -88,35 +89,102 @@ class InferenceProcessor:
             'bvec_in': bvec_in,
             'bvec_out': bvec_out,
         }
-
         context = {'affine': affine}
 
         return datasets, context
 
     def run_subject(self, dmri_in, bvec_in, bvec_out, mask, dmri_out=None):
-        # TODO: docstring
+        '''Runs subject through preprocessing, single-shell inference,
+            and postprocessing.
+
+        Args:
+            dmri_in (str): Path to input dMRI data file.
+            bvec_in (str): Path to input b-vector data file.
+            bvec_out (str): Path to output b-vector data file.
+            mask (str): Path to brain mask file.
+            dmri_out (str): Optional output path to save dmri_out to disk.
+                Default: `None` (does not save to disk)
+
+        Returns:
+            dmri_out (np.ndarray): Inferred dMRI data
+        '''
         datasets, context = self.load_raw_data_dict(dmri_in, bvec_in, bvec_out, mask)
         self.preprocess(datasets, context)
         self.run_model(datasets)
-        self.postprocess(datasets)
+        self.postprocess(datasets, context)
         if dmri_out is not None:
-            self.save_dmri_data(datasets, context)
+            self.save_dmri_data(datasets, context, dmri_out)
 
         return datasets['dmri_out']
 
     def preprocess(self, datasets, context):
-        # TODO: docstring
+        '''Preprocessing for a given subject:
+            1) Rescales data to approximately [0,1] range
+            2) Slices data into smaller 3D patches
+            3) Reshapes data ready for inference
+
+        Args:
+            datasets (Dict[str,Any]):
+                'mask': (np.ndarray) -> shape (i, j, k)
+                'dmri_in': (np.ndarray) -> shape (i, j, k, q_in)
+                'bvec_in': (np.ndarray) -> shape (3, q_in)
+                'bvec_out': (np.ndarray) -> shape (3, q_out)
+            context (Dict[str,Any]):
+                'affine': (np.ndarray) -> shape (4, 4)
+
+        Modifies:
+            datasets (Dict[str,Any]):
+                ~ 'dmri_in': (np.ndarray) -> shape (X, q_in, m, n, o)
+                ~ 'bvec_in': (np.ndarray) -> shape (X, q_in, 3)
+                ~ 'bvec_out': (np.ndarray) -> shape (X, q_out, 3)
+                - 'mask': (np.ndarray) -> shape (i, j, k)
+            context (Dict[str,Any])
+                + 'xmin': (float)
+                + 'xmax': (float)
+                + 'orig_shape': (Tuple[int,int,int]) -> i, j, k
+                + 'padding': (Tuple[Tuple[int,int,int]]) -> (0, padi), (0, padj), (0, padk)
+                + 'mask_filter': (np.ndarray) -> shape (N,)
+                + 'unused_num': (int)
+                ...
+        '''
         # Scales data to approximate range [0,1]
         self._scaler.forward(datasets, context, **self._config)
         # Splits dMRI data into 3D patches
         self._patcher.forward(datasets, context, **self._config)
         # Reshapes and repeats dataset
-        self._splitter.forward(datasets)
+        self._reshaper.forward(datasets)
 
     def postprocess(self, datasets, context):
-        # TODO: docstring
+        '''Postprocessing for a given subject:
+            1) Reshapes data back to previous shapes
+            2) Combines patches into contiguous 4D volumes
+            1) Rescales data back to original value range.
+
+        Args:
+            datasets (Dict[str,Any]):
+                'dmri_out': (np.ndarray) -> shape (X, q_out, n, m, o)
+            context (Dict[str,Any]):
+                'xmin': (float)
+                'xmax': (float)
+                'orig_shape': (Tuple[int,int,int]) -> i, j, k
+                'padding': (Tuple[Tuple[int,int,int]]) -> (0, padi), (0, padj), (0, padk)
+                'mask_filter': (np.ndarray) -> shape (N,)
+                'unused_num': (int)
+                ...
+
+        Modifies:
+            datasets (Dict[str,Any])
+                ~ 'dmri_out': (np.ndarray) -> shape (i, j, k, q_out)
+            context (Dict[str,Any]):
+                - 'xmin': (float)
+                - 'xmax': (float)
+                - 'orig_shape': (Tuple[int,int,int]) -> i, j, k
+                - 'padding': (Tuple[Tuple[int,int,int]]) -> (0, padi), (0, padj), (0, padk)
+                - 'mask_filter': (np.ndarray) -> shape (N,)
+                - 'unused_num': (int)
+        '''
         # Reshape dMRI
-        self._splitter.backward(datasets)
+        self._reshaper.backward(datasets)
         # Combines 3D patches to contiguous volume
         self._patcher.backward(datasets, context)
         # Rescale data
@@ -127,9 +195,9 @@ class InferenceProcessor:
 
         Args:
             datasets (Dict[str,Any]):
+                'dmri_in': (np.ndarray) -> shape (X, q_in, m, n, o)
                 'bvec_in': (np.ndarray) -> shape (X, q_in, 3)
                 'bvec_out': (np.ndarray) -> shape (X, q_out, 3)
-                ...
 
         Modifies:
             datasets (Dict[str,Any]):
@@ -137,9 +205,7 @@ class InferenceProcessor:
                 - 'dmri_in': (np.ndarray) -> shape (X, q_in, m, n, o)
                 - 'bvec_in': (np.ndarray) -> shape (X, q_in, 3)
                 - 'bvec_out': (np.ndarray) -> shape (X, q_out, 3)
-                ...
         '''
-        # pylint: disable=unused-argument
         print('Running inference on data...')
 
         dmri_in = datasets.pop('dmri_in')
@@ -159,7 +225,7 @@ class InferenceProcessor:
 
     def save_dmri_data(self, datasets, context, fpath):
         '''Saves dmri_out within datasets dict
-        
+
         Args:
             datasets (Dict[str,Any]):
                 'dmri_out': (np.ndarray) -> shape (i, j, k, q_out)

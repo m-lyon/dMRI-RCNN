@@ -1,10 +1,11 @@
-'''Input & Output splitter class'''
+'''Input & Output reshaper class'''
 
 import numpy as np
 
 from .base import Operation
 
-class Splitter(Operation):
+
+class Reshaper(Operation):
 
     @staticmethod
     def forward(datasets):
@@ -49,4 +50,4 @@ class Splitter(Operation):
                 ~ 'dmri_out': (np.ndarray) -> shape (X, m, n, o, q_out)
         '''
         # Reshape dmri_out -> (X, m, n, o, q_out)
-        datasets['dmri_out'] = np.transpose(datasets['dmri_out'], axies=[0, 2, 3, 4, 1])
+        datasets['dmri_out'] = np.transpose(datasets['dmri_out'], axes=[0, 2, 3, 4, 1])
