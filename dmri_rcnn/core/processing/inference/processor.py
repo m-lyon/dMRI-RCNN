@@ -8,6 +8,7 @@ from .scaler import Scaler
 from .patcher import Patcher
 from .reshaper import Reshaper
 
+
 class InferenceProcessor:
     '''Inference pipeline for single-shell data'''
 
@@ -25,7 +26,7 @@ class InferenceProcessor:
             norms (Dict[int,Tuple[float,float]]): Normalisations for each shell
                 Default: {1000: 4000.0, 2000: 3000.0, 3000: 2000.0}
             batch_size (int): Batch size of dataset for inference/training.
-                Default: 52
+                Default: 4
         '''
         self.model = model
         self._scaler = Scaler
