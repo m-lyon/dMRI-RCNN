@@ -30,6 +30,7 @@ setup(
     license='MIT License',
     packages=find_namespace_packages(),
     install_requires=install_deps,
+    scripts=['dmri_rcnn/bin/run_dmri_rcnn.py'],
     classifiers=[
         'Programming Language :: Python',
         'Operating System :: Unix',
