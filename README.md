@@ -2,20 +2,15 @@
 This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN.
 
 ## Installation
-`dMRI-RCNN` can be installed via pip:
+`dMRI-RCNN` can be installed by either cloning this repository, or downloading a release. Then install via pip:
 ```bash
-pip install dmri-rcnn
+pip install /path/to/release.tar.gz
 ```
 
 ### Requirements
 `dMRI-RCNN` uses [TensorFlow](https://www.tensorflow.org/) as the deep learning architecture.
 
-`gitpython` and [git-lfs](https://git-lfs.github.com/) are required **before** attempting to install this package.
-
-- These are required to download the model weights.
-- To install `gitpython` simply run `pip install gitpython` before installing this package.
-
-Listed below are the requirements that will be installed when pip installing this package.
+Listed below are the requirements for this package.
 - `tensorflow>=2.6.0`
 - `numpy`
 - `einops`
