@@ -1,1 +1,2 @@
-include dmri_rcnn/core/weights/1D_RCNN/** dmri_rcnn/core/weights/3D_RCNN/**
+recursive-include dmri_rcnn/core/weights/1D_RCNN/* weights.*
+recursive-include dmri_rcnn/core/weights/3D_RCNN/* weights.*
