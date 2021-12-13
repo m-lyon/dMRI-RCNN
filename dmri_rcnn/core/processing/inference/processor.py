@@ -115,7 +115,7 @@ class InferenceProcessor:
         self.postprocess(datasets, context)
         if dmri_out is not None:
             self.save_dmri_data(datasets, context, dmri_out)
-
+        print('Done.')
         return datasets['dmri_out']
 
     def preprocess(self, datasets, context):
