@@ -11,34 +11,35 @@ install_deps = [
     'nibabel'
 ]
 
-version = '0.1.4'
+version = '0.1.5'
 this_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-try:
-    import git
-except ModuleNotFoundError:
-    raise RuntimeError(
-        'Please ensure gitpython is installed. Can be installed via "pip install gitpython"'
-    )
+#try:
+#    import git
+# except ModuleNotFoundError:
+#     raise RuntimeError(
+#         'Please ensure gitpython is installed. Can be installed via "pip install gitpython"'
+#     )
 
 
-def pull_first():
-    '''Pull LFS objects'''
-    cwd = os.getcwd()
-    gitdir = os.path.dirname(os.path.realpath(__file__))
-    os.chdir(gitdir)
-    g = git.cmd.Git(gitdir)
-    try:
-        g.execute(['git', 'lfs', 'pull'])
-    except git.exc.GitCommandError:
-        raise RuntimeError('Please ensure git-lfs is installed.')
-    os.chdir(cwd)
+# def pull_first():
+#     '''Pull LFS objects'''
+#     cwd = os.getcwd()
+#     gitdir = os.path.dirname(os.path.realpath(__file__))
+#     os.chdir(gitdir)
+#     g = git.cmd.Git(gitdir)
+#     try:
+#         g.execute(['git', 'lfs', 'pull'])
+#     except git.exc.GitCommandError:
+#         raise RuntimeError('Please ensure git-lfs is installed.')
+#     os.chdir(cwd)
 
 
-pull_first()
+# pull_first()
+
 setup(
     name='dmri-rcnn',
     version=version,
