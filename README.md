@@ -2,7 +2,7 @@
 This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN.
 
 ## Installation
-`dMRI-RCNN` can be installed by either cloning this repository, or downloading a release. Then install via pip:
+`dMRI-RCNN` can be installed by first downloading a release, then install via pip:
 ```bash
 pip install /path/to/release.tar.gz
 ```
