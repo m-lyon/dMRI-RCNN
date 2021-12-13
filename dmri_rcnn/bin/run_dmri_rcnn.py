@@ -61,15 +61,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('dMRI RCNN Angular Super-resolution')
     parser.add_argument(
         '-dmri_in', dest='dmri_in', type=fpath, required=True,
-        help='Input dMRI NIfTI volume. Must be single-shell and contain q_in 3D volumes'
+        help='Context dMRI NIfTI volume. Must be single-shell and contain q_in 3D volumes'
     )
     parser.add_argument(
         '-bvec_in', dest='bvec_in', type=fpath, required=True,
-        help='Input b-vectory text file. Whitespace delimited with 3 rows and q_in columns'
+        help='Context b-vectory text file. Whitespace delimited with 3 rows and q_in columns'
     )
     parser.add_argument(
         '-bvec_out', dest='bvec_out', type=fpath, required=True,
-        help='Output b-vector text file. Whitespace delimited with 3 rows and q_out columns'
+        help='Target b-vector text file. Whitespace delimited with 3 rows and q_out columns'
     )
     parser.add_argument(
         '-mask', dest='mask', type=fpath, required=True,
@@ -77,11 +77,11 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-dmri_out', dest='dmri_out', type=str, required=True,
-        help='Output dMRI NIfTI volume. This will contain q_out inferred volumes.'
+        help='Inferred dMRI NIfTI volume. This will contain q_out inferred volumes.'
     )
     parser.add_argument(
         '-s', '--shell', dest='shell', type=int, choices=[1000, 2000, 3000], required=True,
-        help='Shell to perform inference with. Must be same shell as in/out dMRI and b-vectors'
+        help='Shell to perform inference with. Must be same shell as context/target dMRI and b-vectors'
     )
     parser.add_argument(
         '-m', '--model-dim', dest='model_dim', type=int, choices=[1, 3], default=3,

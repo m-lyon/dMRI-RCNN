@@ -5,19 +5,19 @@ from os import path
 from setuptools import setup, find_namespace_packages
 
 install_deps = [
-    'tensorflow==2.7.0',
+    'tensorflow>=2.6.0',
     'numpy',
     'einops',
     'nibabel'
 ]
 
-version = '1.0.0'
+version = '0.1.0'
 this_dir = path.abspath(path.dirname(__file__))
 with open(path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='dMRI-RCNN',
+    name='dmri-rcnn',
     version=version,
     description='Diffusion MRI Recurrent CNN for Angular Super-resolution.',
     author='Matt Lyon',
@@ -37,7 +37,6 @@ setup(
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows :: Windows 10'
     ],
-    # scripts=['PhD/misc/bin/transfer_data.py'],
     include_package_data=True,
     keywords=['ai', 'cv', 'computer-vision', 'mri', 'dmri', 'super-resolution', 'cnn']
 )
