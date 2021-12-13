@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 '''Script to run dMRI RCNN inference'''
 import os
 import argparse
