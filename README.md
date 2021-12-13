@@ -8,7 +8,14 @@ pip install dmri-rcnn
 ```
 
 ### Requirements
-`dMRI-RCNN` uses [TensorFlow](https://www.tensorflow.org/) as the deep learning architecture. Listed below are all the requirements to install the package.
+`dMRI-RCNN` uses [TensorFlow](https://www.tensorflow.org/) as the deep learning architecture.
+
+`gitpython` and [git-lfs](https://git-lfs.github.com/) are required **before** attempting to install this package.
+
+- These are required to download the model weights.
+- To install `gitpython` simply run `pip install gitpython` before installing this package.
+
+Listed below are the requirements that will be installed when pip installing this package.
 - `tensorflow>=2.6.0`
 - `numpy`
 - `einops`
