@@ -1,4 +1,7 @@
 # dMRI-RCNN
+
+![Model Architecture](resources/rcnn_dmri_model.png)
+
 This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN.
 
 ## Installation
