@@ -1,4 +1,4 @@
-# dMRI-RCNN
+# Angular Super-Resolution in Diffusion MRI with a 3D Recurrent Convolutional Autoencoder
 
 ![Model Architecture](resources/rcnn_dmri_model.png)
 
@@ -75,8 +75,45 @@ $ run_dmri_rcnn.py -dmri_in context_dmri.nii.gz -bvec_in context_bvecs -bvec_out
 ```
 This example would take ~2 minutes to infer 80 volumes on an `NVIDIA RTX 3080`.
 
+## Training
+Below are details on how to train a given model, and the preprocessing steps involved.
+
+### Data Pre-Processing
+A training dataset is typically too large to fit into memory all at once. To overcome this, this project uses TensorFlow's `.tfrecord` file format and the
+[tf.data.Dataset](https://www.tensorflow.org/api_docs/python/tf/data/Dataset) API. Therefore training data should be saved in this format before starting. Below is an example on how to do this using the `dMRI-RCNN` project.
+
+```python
+import numpy as np
+
+from dmri_rcnn.core import io
+from dmri_rcnn.core.training import save_tfrecord_data
+
+# First load a subject into memory
+dmri = io.load_nifti('/path/to/dmri/data.nii.gz')
+mask = io.load_nifti('/path/to/brain/mask.nii.gz', dtype=np.int8)
+bvecs = io.load_bvec('/path/to/dmri/bvecs') # bvecs & bvals should be in FSL format
+bvals = io.load_bval('/path/to/dmri/bvals')
+
+# Optionally crop image data
+dmri, mask = io.autocrop_dmri(dmri, mask)
+
+# .tfrecord format uses a maximum filesize of 2 GiB, therefore for high
+# resolution dMRI data, the image may need to be split into smaller parts
+# to do this use the function below.
+dmri_list = io.split_image_to_octants(dmri)
+mask_list = io.split_image_to_octants(mask)
+
+# Now save data in .tfrecord format
+save_tfrecord_data(dmri, bvecs, bvals, mask, '/path/to/saved/data.tfrecord')
+
+# Alternatively save the list of image parts if dmri is too large
+for i in range(len(dmri_list)):
+  save_tfrecord_data(dmri_list[i], bvecs, bvals, mask_list[i], '/path/to/saved/data' + str(i) + '.tfrecord')
+```
+
 ## Roadmap
 Future Additions & Improvements:
 - Training Pipeline.
   - Addition of the training pipeline to allow finetuning & further user experimentation within the framework.
+- Plot functionality
 - Docker support.

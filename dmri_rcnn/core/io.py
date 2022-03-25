@@ -96,3 +96,76 @@ def save_bval(bval, fpath):
         fpath (str): filepath to save bval to
     '''
     np.savetxt(fpath, bval, newline=' ', fmt='%g')
+
+
+def autocrop_dmri(dmri, mask):
+    '''Crops `dmri` and `mask` data
+        so dimensions that contain only zeros are cropped
+
+    Args:
+        dmri (np.ndarray): shape -> (i, j, k, b)
+        mask (np.ndarray): shape -> (i, j, k)
+
+    Returns:
+        dmri (np.ndarray): shape -> (i-ix, k-kx, j-jx, b)
+        mask (np.ndarray): shape -> (i-ix, k-kx, j-jx)
+    '''
+    def _get_data_mask(dmri, mask, axis):
+        new_mask = np.expand_dims(mask, axis=-1)
+        data_mask = np.concatenate([dmri, new_mask], axis=-1)
+        data_mask = np.sum(data_mask, axis=axis).astype(bool)
+
+        return data_mask
+
+    # Axis 0
+    data_mask = _get_data_mask(dmri, mask, (1,2,3))
+    dmri = dmri[data_mask, ...]
+    mask = mask[data_mask, ...]
+
+    # Axis 1
+    data_mask = _get_data_mask(dmri, mask, (0,2,3))
+    dmri = dmri[:, data_mask, ...]
+    mask = mask[:, data_mask, :]
+
+    # Axis 2
+    data_mask = _get_data_mask(dmri, mask, (0,1,3))
+    dmri = dmri[:, :, data_mask, :]
+    mask = mask[:, :, data_mask]
+
+    return dmri, mask
+
+
+def split_image_to_octants(data):
+    '''Splits `data` in half in each
+        spatial dimension, yielding 8 patches at an 8th of
+        the size.
+
+    Args:
+        data (np.ndarray): shape -> (i, j, k, ...)
+
+    Returns:
+        klist (List[np.ndarray,]): list of split images
+    '''
+    i, j, k = data.shape[0], data.shape[1], data.shape[2]
+
+    idx = i // 2
+
+    ilist = []
+    ilist.append(data[0:idx, ...])
+    ilist.append(data[idx:, ...])
+
+    jdx = j // 2
+
+    jlist = []
+    for idata in ilist:
+        jlist.append(idata[:, 0:jdx, ...])
+        jlist.append(idata[:, jdx:, ...])
+
+    kdx = k // 2
+
+    klist = []
+    for jdata in jlist:
+        klist.append(jdata[:, :, 0:kdx, ...])
+        klist.append(jdata[:, :, kdx:, ...])
+
+    return klist

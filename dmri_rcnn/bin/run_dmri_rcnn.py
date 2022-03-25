@@ -10,7 +10,7 @@ from dmri_rcnn.core.processing import InferenceProcessor
 
 
 def get_q_in(bvec_in, bvec_out):
-    '''Infers q-space in dim from b-vector'''
+    '''Infers q-space input dimension from b-vector'''
     bvec_in_arr = load_bvec(bvec_in)
     q_in = bvec_in_arr.shape[-1]
 
