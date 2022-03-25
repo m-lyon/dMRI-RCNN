@@ -1,7 +1,7 @@
 '''Function to get weights path'''
 import os
 
-def get_weights(model_dim, shell, q_in, combined=False):
+def get_weights(model_dim: int, shell: int, q_in: int, combined: bool = False):
     '''Gets weights given model parameters
     
     Args:
