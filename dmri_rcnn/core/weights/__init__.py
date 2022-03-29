@@ -1,6 +1,7 @@
 '''Function to get weights path'''
 import os
 
+
 def get_weights(model_dim: int, shell: int, q_in: int, combined: bool = False):
     '''Gets weights given model parameters
     
@@ -21,4 +22,7 @@ def get_weights(model_dim: int, shell: int, q_in: int, combined: bool = False):
         weight_dir = os.path.join(root_dir, f'{model_dim}D_RCNN', f'b{shell}_{q_in}in')
     if os.path.isdir(weight_dir):
         return os.path.join(weight_dir, 'weights')
-    return None
+    raise RuntimeError(
+        'Weights in given configuration not found: ' +
+        f'{model_dim = }, {shell = }, {q_in = }, {combined = }'
+    )

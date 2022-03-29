@@ -6,6 +6,7 @@ from .scaler import DataScaler
 from .patcher import Patcher
 from .reshaper import Reshaper, Joiner
 from .base import CombineDatasets
+from .io import load_tfrecord_data
 
 
 class TrainingProcessor:
@@ -14,33 +15,34 @@ class TrainingProcessor:
     Applies following steps:
         1) Filter out unwanted shells, ie. those != `shell`
         2) Re-orders qspace into near optimal given set sizes
-            `in_num` and `out_num`
+            `q_in` and `q_out`
         3) Rescales data to given an `xmax`
         4) Splits into 3D patches of size `patch_shape`
-        5) Splits into input & output sets of size `in_num` and `out_num`
+        5) Splits into input & output sets of size `q_in` and `q_out`
         6) Flattens subject dimension into patch dimension.
 
     Output Specs:
         (dmri_in, bvec_in, bvec_out), dmri_out)
-            dmri_in (tf.Tensor): shape -> (in_num, m, n, o)
-            bvec_in (tf.Tensor): shape -> (in_num, 3)
-            bvec_out (tf.Tensor): shape -> (out_num, 3)
-            dmri_out (tf.Tensor): shape -> (out_num, m, n, o)
+            dmri_in (tf.Tensor): shape -> (q_in, m, n, o)
+            bvec_in (tf.Tensor): shape -> (q_in, 3)
+            bvec_out (tf.Tensor): shape -> (q_out, 3)
+            dmri_out (tf.Tensor): shape -> (q_out, m, n, o)
     '''
 
-    def __init__(self, shells, in_num, out_num, patch_shape, norms, **kwargs):
+    def __init__(self, shells, q_in, q_out=10, patch_shape=(10, 10, 10), **kwargs):
         '''InterShell Pipeline
 
         Args:
             shells (List[int,]): Shells to use in training.
-            in_num (int): Number of qspace samples per input
-            out_num (int): Number of qspace samples per output
-            patch_shape (Tuple[int,int,int]): 3D patch shape
-                for input & output
-            norms (Dict[int,Tuple[float,float]]): Normalisations for each shell
-                {`shell`: (xmin, xmax)}
+            q_in (int): Number of qspace samples per input
+            q_out (int): Number of qspace samples per output.
+                Default: 10
+            patch_shape (Tuple[int,int,int]): 3D patch shape for input & output.
+                Default: (10, 10, 10)
 
         Keyword Args:
+            norms (Dict[int,Tuple[float,float]]): Normalisations for each shell
+                {`shell`: xmax}. Default: {1000: 4000., 2000: 3000., 3000: 2000.}
             shell_var (float): Shell variance for shell group membership filter.
                 Default: 30.0
             random_seed (bool): Use random seed when selecting optimal subsets
@@ -48,12 +50,13 @@ class TrainingProcessor:
         '''
         seed = kwargs.get('random_seed', True)
         shell_var = kwargs.get('shell_var', 30.0)
+        norms = kwargs.get('norms', {1000: 4000., 2000: 3000., 3000: 2000.})
 
         self.shell_filter = ShellFilter(shells, shell_var=shell_var)
-        self.shell_reorder = ShellReorder(in_num, out_num, random_seed=seed)
+        self.shell_reorder = ShellReorder(q_in, q_out, random_seed=seed)
         self.scaler = DataScaler(norms)
         self.patcher = Patcher(patch_shape)
-        self.reshaper = Reshaper(in_num, out_num)
+        self.reshaper = Reshaper(q_in, q_out)
         self.joiner = Joiner()
         self.combiner = CombineDatasets()
 
@@ -71,3 +74,30 @@ class TrainingProcessor:
         datasets = self.combiner(datasets)
 
         return datasets
+
+    def load_data(self, data_fpaths, batch_size=4, run_par=True, validation=False, buffer_size=10000):
+        '''Creates pre-processing pipeline, ready for training
+        
+        Args:
+            data_fpaths (List[str, ...]): List of .tfrecord filepaths containing
+                training data examples
+            batch_size (int): Batch size of training examples. Lower this if experiencing
+                GPU OOM problems.
+            run_par (bool): Run data loading in parallel. Will use all available
+                CPUs. Default: `True`
+            validation (bool): Designate as validation dataset. Will not apply
+                shuffling and shell reordering. Default: `False`
+            buffer_size (int): Buffer size used for shuffled dataset, therefore only
+                applicable if validation == `False`. Lower this number if experiencing
+                CPU RAM OOM problems. Default: 10000
+
+        Returns:
+            datasets (tf.data.Dataset): Dataset with preprocessing mapping.
+        '''
+        dataset = load_tfrecord_data(data_fpaths)
+        dataset = self(dataset, run_par=run_par, validation=validation)
+        if not validation:
+            dataset = dataset.shuffle(buffer_size=buffer_size)
+        dataset = dataset.batch(batch_size=batch_size)
+
+        return dataset

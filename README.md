@@ -111,9 +111,35 @@ for i in range(len(dmri_list)):
   save_tfrecord_data(dmri_list[i], bvecs, bvals, mask_list[i], '/path/to/saved/data' + str(i) + '.tfrecord')
 ```
 
+### Training a Model
+Once pre-processing is complete, you can then train a model.
+
+```python
+from dmri_rcnn.core.weights import get_weights
+from dmri_rcnn.core.model import get_1D_autoencoder, get_3D_autoencoder
+from dmri_rcnn.core.training import TrainingProcessor
+
+# If we want to fine-tune the model we can load the previously obtained weights.
+# In this example we'll load the weights for the 3D RCNN trained on the b = 1000
+# shell and 6 q-space samples per input.
+weights = get_weights(model_dim=3, shell=1000, q_in=6, combined=False)
+
+# Now we can instantiate the pre-compiled 3D model
+model = get_3D_autoencoder(weights) # Omit the weights argument to load without pre-trained weights
+
+# Instantiate the training processor
+processor = TrainingProcessor(shells=[1000], q_in=6)
+
+# Load dataset mapping
+train_data = processor.load_data(['/path/to/train_data0.tfrecord', '/path/to/train_data1.tfrecord'])
+validation_data = processor.load_data(['/path/to/val_data0.tfrecord'], validation=True)
+
+# Begin training
+model.fit(train_data, epochs=10, validation_data=validation_data)
+```
+
 ## Roadmap
 Future Additions & Improvements:
-- Training Pipeline.
-  - Addition of the training pipeline to allow finetuning & further user experimentation within the framework.
+
 - Plot functionality
 - Docker support.

@@ -13,7 +13,7 @@ class DataScaler(DatasetMapper):
 
         Arguments:
             norms (Dict[int,Tuple[float,float]]): Normalisations for each shell
-                {`shell`: (xmin, xmax)}
+                {`shell`: xmax}
 
         Call Arguments:
             dataset (tf.data.Dataset): dataset object with the following structure per example:
@@ -33,7 +33,7 @@ class DataScaler(DatasetMapper):
                 dmri and bvec values.
         '''
         self.norms = {
-            key: (tf.constant(val[0], dtype=tf.float32), tf.constant(val[1], dtype=tf.float32))
+            key: (tf.constant(0, dtype=tf.float32), tf.constant(val, dtype=tf.float32))
             for (key, val) in norms.items()
         }
 

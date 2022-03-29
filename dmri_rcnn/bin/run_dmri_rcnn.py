@@ -45,8 +45,6 @@ def main(args):
     args.q_in, args.q_out = get_q_in(args.bvec_in, args.bvec_out)
     print_args(args)
     weights = get_weights(args.model_dim, args.shell, args.q_in, args.combined)
-    if weights is None:
-        raise RuntimeError('Model configuration unavailable.')
 
     if args.model_dim == 3:
         model = get_3D_autoencoder(weights)
