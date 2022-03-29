@@ -163,6 +163,9 @@ def get_3D_autoencoder(weights=None, **kwargs):
             Default: (10, 10, 10)
         lstm_size (int): Number of units within the 3DConvLSTM.
             Default: 48
+        loss (Union[str, tf.keras.losses.Loss]): Loss used in model training.
+            see https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile
+            for example inputs. Default: "mae"
 
     Returns:
         autoencoder (tf.keras.models.Model): Autoencoder model.
@@ -171,6 +174,7 @@ def get_3D_autoencoder(weights=None, **kwargs):
     q_out = kwargs.setdefault('q_out', None)
     in_vox_shape = kwargs.setdefault('in_vox_shape', (10, 10, 10))
     kwargs.setdefault('lstm_size', 48)
+    loss = kwargs.get('loss', 'mae')
 
     # Instantiate encoder & decoder models
     encoder = get_3D_encoder(**kwargs)
@@ -191,7 +195,7 @@ def get_3D_autoencoder(weights=None, **kwargs):
         name='autoencoder'
     )
 
-    autoencoder.compile(optimizer=get_adam_opt())
+    autoencoder.compile(loss=loss, optimizer=get_adam_opt())
 
     if weights is not None:
         autoencoder.load_weights(weights).assert_consumed()
@@ -331,6 +335,9 @@ def get_1D_autoencoder(weights=None, **kwargs):
             Default: (10, 10, 10)
         lstm_size (int): Number of units within the 3DConvLSTM.
             Default: 48
+        loss (Union[str, tf.keras.losses.Loss]): Loss used in model training.
+            see https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile
+            for example inputs. Default: "mae"
 
     Returns:
         autoencoder (tf.keras.models.Model): Autoencoder model.
@@ -339,6 +346,7 @@ def get_1D_autoencoder(weights=None, **kwargs):
     q_out = kwargs.setdefault('q_out', None)
     in_vox_shape = kwargs.setdefault('in_vox_shape', (10, 10, 10))
     kwargs.setdefault('lstm_size', 48)
+    loss = kwargs.get('loss', 'mae')
 
     # Instantiate encoder & decoder models
     encoder = get_1D_encoder(**kwargs)
@@ -359,7 +367,7 @@ def get_1D_autoencoder(weights=None, **kwargs):
         name='autoencoder'
     )
 
-    autoencoder.compile(optimizer=get_adam_opt())
+    autoencoder.compile(loss=loss, optimizer=get_adam_opt())
 
     if weights is not None:
         autoencoder.load_weights(weights).assert_consumed()
