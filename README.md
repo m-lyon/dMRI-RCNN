@@ -7,7 +7,7 @@ This project enhances the angular resolution of dMRI data through the use of a R
 ## Installation
 `dMRI-RCNN` can be installed by first downloading a release, then install via pip:
 ```bash
-pip install dMRI-RCNN-{version}.tar.gz
+pip install dmri-rcnn
 ```
 
 ### Requirements
