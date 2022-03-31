@@ -2,10 +2,12 @@
 
 ![Model Architecture](resources/rcnn_dmri_model.png)
 
+[![PyPI version](https://badge.fury.io/py/dmri-rcnn.svg)](https://badge.fury.io/py/dmri-rcnn)
+
 This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN.
 
 ## Installation
-`dMRI-RCNN` can be installed by first downloading a release, then install via pip:
+`dMRI-RCNN` can be installed by via pip:
 ```bash
 pip install dmri-rcnn
 ```
@@ -18,6 +20,7 @@ Listed below are the requirements for this package.
 - `numpy`
 - `einops`
 - `nibabel`
+- `tqdm`
 
 ## Inference
 Once installed, use `run_dmri_rcnn.py` to perform inference of new dMRI volumes. Below lists the data requirements to use the script, and the commandline arguments available for inference.
