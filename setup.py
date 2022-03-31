@@ -8,10 +8,11 @@ install_deps = [
     'tensorflow>=2.6.0',
     'numpy',
     'einops',
-    'nibabel'
+    'nibabel',
+    'tqdm',
 ]
 
-version = '0.1.10'
+version = '0.2.0'
 this_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -24,7 +25,7 @@ setup(
     author='Matt Lyon',
     author_email='matthewlyon18@gmail.com',
     url='https://https://github.com/mattlyon93/dMRI-RCNN',
-    download_url='https://https://github.com/mattlyon93/dMRI-RCNN/archive/v{}.tar.gz'.format(version),
+    download_url=f'https://https://github.com/mattlyon93/dMRI-RCNN/archive/v{version}.tar.gz',
     long_description=long_description,
     long_description_content_type='text/markdown',
     python_requires='>=3.8',

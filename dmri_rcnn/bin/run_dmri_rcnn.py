@@ -5,7 +5,7 @@ import argparse
 
 from dmri_rcnn.core.io import load_bvec
 from dmri_rcnn.core.weights import get_weights
-from dmri_rcnn.core.model import get_1D_autoencoder, get_3D_autoencoder
+from dmri_rcnn.core.model import get_1d_autoencoder, get_3d_autoencoder
 from dmri_rcnn.core.processing import InferenceProcessor
 
 
@@ -24,8 +24,7 @@ def fpath(string):
     '''Checks filepath exists'''
     if os.path.isfile(string):
         return string
-    else:
-        raise RuntimeError(f'Filepath {string} does not exist.')
+    raise RuntimeError(f'Filepath {string} does not exist.')
 
 
 def print_args(args):
@@ -47,9 +46,9 @@ def main(args):
     weights = get_weights(args.model_dim, args.shell, args.q_in, args.combined)
 
     if args.model_dim == 3:
-        model = get_3D_autoencoder(weights)
+        model = get_3d_autoencoder(weights)
     else:
-        model = get_1D_autoencoder(weights)
+        model = get_1d_autoencoder(weights)
 
     processor = InferenceProcessor(model, shell=args.shell, batch_size=args.batch_size)
     processor.run_subject(args.dmri_in, args.bvec_in, args.bvec_out, args.mask, args.dmri_out)
@@ -79,7 +78,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-s', '--shell', dest='shell', type=int, choices=[1000, 2000, 3000], required=True,
-        help='Shell to perform inference with. Must be same shell as context/target dMRI and b-vectors'
+        help='Shell to perform inference on. Must be same shell as context/target dMRI and b-vecs'
     )
     parser.add_argument(
         '-m', '--model-dim', dest='model_dim', type=int, choices=[1, 3], default=3,

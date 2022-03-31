@@ -19,7 +19,7 @@ Listed below are the requirements for this package.
 - `einops`
 - `nibabel`
 
-## Usage
+## Inference
 Once installed, use `run_dmri_rcnn.py` to perform inference of new dMRI volumes. Below lists the data requirements to use the script, and the commandline arguments available for inference.
 
 ### Data
@@ -68,6 +68,10 @@ optional arguments:
   -b BATCH_SIZE, --batch-size BATCH_SIZE
                         Batch size to run model inference with.
 ```
+
+***N.B.** Weights are downloaded and stored within `~/.dmri_rcnn` by default. To store weights in a different directory, set environment variable `DMRI_RCNN_DIR="/your/custom/directory"`*
+
+
 #### Example
 The following example performs `b = 1000` inference with the 3D dMRI RCNN.
 ```
@@ -86,7 +90,7 @@ A training dataset is typically too large to fit into memory all at once. To ove
 import numpy as np
 
 from dmri_rcnn.core import io
-from dmri_rcnn.core.training import save_tfrecord_data
+from dmri_rcnn.core.processing import save_tfrecord_data
 
 # First load a subject into memory
 dmri = io.load_nifti('/path/to/dmri/data.nii.gz')
@@ -116,8 +120,8 @@ Once pre-processing is complete, you can then train a model.
 
 ```python
 from dmri_rcnn.core.weights import get_weights
-from dmri_rcnn.core.model import get_1D_autoencoder, get_3D_autoencoder
-from dmri_rcnn.core.training import TrainingProcessor
+from dmri_rcnn.core.model import get_1d_autoencoder, get_3d_autoencoder
+from dmri_rcnn.core.processing import TrainingProcessor
 
 # If we want to fine-tune the model we can load the previously obtained weights.
 # In this example we'll load the weights for the 3D RCNN trained on the b = 1000
@@ -125,7 +129,7 @@ from dmri_rcnn.core.training import TrainingProcessor
 weights = get_weights(model_dim=3, shell=1000, q_in=6, combined=False)
 
 # Now we can instantiate the pre-compiled 3D model
-model = get_3D_autoencoder(weights) # Omit the weights argument to load without pre-trained weights
+model = get_3d_autoencoder(weights) # Omit the weights argument to load without pre-trained weights
 
 # Instantiate the training processor
 processor = TrainingProcessor(shells=[1000], q_in=6)
@@ -140,6 +144,5 @@ model.fit(train_data, epochs=10, validation_data=validation_data)
 
 ## Roadmap
 Future Additions & Improvements:
-
 - Plot functionality
 - Docker support.

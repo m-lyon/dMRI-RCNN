@@ -59,8 +59,8 @@ class InferenceProcessor:
     def print_config(self):
         '''Prints configuration of processor'''
         print('Configuration:')
-        for key in self._config:
-            print('    {} -> {}'.format(key, self._config[key]))
+        for key, val in self._config.items():
+            print(f'    {key} -> {val}')
 
     def load_raw_data_dict(self, dmri_in_fpath, bvec_in_fpath, bvec_out_fpath, mask_fpath):
         '''Loads dMRI data into memory and zips to datasets dict
@@ -232,6 +232,6 @@ class InferenceProcessor:
                 'dmri_out': (np.ndarray) -> shape (i, j, k, q_out)
             context (Dict[str,Any]):
                 'affine': (np.ndarray) -> shape (4, 4)
-            fpath (str): Filepath to save 
+            fpath (str): Filepath to save
         '''
         save_nifti(datasets['dmri_out'], context['affine'], fpath)
