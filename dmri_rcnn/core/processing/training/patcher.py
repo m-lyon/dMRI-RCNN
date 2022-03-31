@@ -110,7 +110,9 @@ class Patcher(DatasetMapper):
                 if total_pad % 2 == 0:
                     pad = pad.write(idx, tf.stack([total_pad // 2, total_pad // 2]))
                 else:
-                    pad = pad.write(idx, tf.stack([total_pad // 2, (total_pad // 2) + 1]))
+                    pad = pad.write(
+                        idx, tf.stack([total_pad // 2, (total_pad // 2) + 1])
+                    )
 
         return pad.stack()
 
@@ -129,15 +131,14 @@ class Patcher(DatasetMapper):
                 with dimensions of (i+di, j+dj, k+dk, ...)
         '''
         # Get extra dims padding
-        extra_dims = tf.rank(tensor) -3
+        extra_dims = tf.rank(tensor) - 3
         extra_pad = tf.TensorArray(dtype=tf.int32, size=extra_dims)
 
         for idx in tf.range(extra_dims):
             extra_pad = extra_pad.write(idx, tf.constant([0, 0]))
 
         padding = tf.concat(
-            [padding, tf.reshape(extra_pad.stack(), (extra_dims, 2))],
-            0
+            [padding, tf.reshape(extra_pad.stack(), (extra_dims, 2))], 0
         )
 
         # Apply padding

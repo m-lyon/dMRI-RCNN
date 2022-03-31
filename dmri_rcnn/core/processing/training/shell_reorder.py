@@ -86,7 +86,7 @@ class ShellReorder(DatasetMapper):
                 dtype -> tf.int32
         '''
 
-        num_sets = tf.shape(bvec)[1] // self.subset_size # Number of full sets
+        num_sets = tf.shape(bvec)[1] // self.subset_size  # Number of full sets
 
         # Instantiate order and order_mask, `order` is used to collect the indice order
         # of volumes, whilst `order_mask` is used to set the current number.
@@ -94,7 +94,7 @@ class ShellReorder(DatasetMapper):
         order_mask = tf.zeros(tf.shape(bvec)[1], dtype=tf.bool)
 
         bvec_index = tf.range(tf.shape(bvec)[1])
-        sph_dists = spherical_distances(bvec, bvec) # -> (b, b)
+        sph_dists = spherical_distances(bvec, bvec)  # -> (b, b)
 
         for _ in tf.range(num_sets):
 
@@ -157,10 +157,14 @@ class ShellReorder(DatasetMapper):
         )
 
         for idx in tf.range(1, subset_size):
-            pick = self._get_furthest_point(sph_dists, pick_mask, avail_mask, bvec_index)
+            pick = self._get_furthest_point(
+                sph_dists, pick_mask, avail_mask, bvec_index
+            )
 
             # Update pick_mask, avail mask, and subset_pick mask
-            pick_mask = update_1d_array(pick_mask, tf.constant([1]), tf.expand_dims(pick, axis=0))
+            pick_mask = update_1d_array(
+                pick_mask, tf.constant([1]), tf.expand_dims(pick, axis=0)
+            )
             avail_mask = update_1d_array(
                 avail_mask, tf.constant([False]), tf.expand_dims(pick, axis=0)
             )
@@ -169,7 +173,9 @@ class ShellReorder(DatasetMapper):
             )
 
         # Now update order and order_mask
-        order, order_mask = self._update_order(order, order_mask, bvec_index, subset_pick)
+        order, order_mask = self._update_order(
+            order, order_mask, bvec_index, subset_pick
+        )
 
         return order, order_mask
 
@@ -305,8 +311,7 @@ class ShellReorder(DatasetMapper):
 
         # get update array
         upd_array = tf.tile(
-            tf.zeros_like(notavail_index, dtype=tf.float32),
-            [1, tf.shape(selection)[1]]
+            tf.zeros_like(notavail_index, dtype=tf.float32), [1, tf.shape(selection)[1]]
         )
 
         # update selection
@@ -319,10 +324,10 @@ class ShellReorder(DatasetMapper):
         dist = tf.reduce_max(selection)
 
         # Return index where this distance is
-        return tf.cast(tf.where(dist == selection)[0,0], tf.int32)
+        return tf.cast(tf.where(dist == selection)[0, 0], tf.int32)
 
     @tf.function
-    def _update_order(self, order, order_mask, bvec_index, subset_pick):
+    def _update_order(self, order, order_mask, bvec_index, pick):
         '''Updates `order` and `order_mask` tensors given picked indices.
 
         Args:
@@ -332,7 +337,7 @@ class ShellReorder(DatasetMapper):
                 within `order`. shape -> (fs,), dtype -> tf.bool
             bvec_index (tf.Tensor): Indices of qspace volumes.
                 shape -> (fs,), dtype -> tf.int32
-            subset_pick (tf.Tensor): Picked entries of subset encoded as 1, else 0.
+            spick (tf.Tensor): Picked entries of subset encoded as 1, else 0.
                 shape -> (subset_size,), dtype -> tf.int32
 
         Returns:
@@ -344,9 +349,11 @@ class ShellReorder(DatasetMapper):
         # Get unused order mask
         not_order_mask = tf.logical_not(order_mask)
         # Get next `subset_size` indexes from bvec_index
-        index = tf.boolean_mask(bvec_index, not_order_mask)[0: tf.shape(subset_pick)[0]]
+        index = tf.boolean_mask(bvec_index, not_order_mask)[0 : tf.shape(pick)[0]]
         # Update the masks with these values
-        order = update_1d_array(order, subset_pick, index)
-        order_mask = update_1d_array(order_mask, tf.ones_like(subset_pick, dtype=tf.bool), index)
+        order = update_1d_array(order, pick, index)
+        order_mask = update_1d_array(
+            order_mask, tf.ones_like(pick, dtype=tf.bool), index
+        )
 
         return order, order_mask

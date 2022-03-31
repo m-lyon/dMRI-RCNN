@@ -38,9 +38,11 @@ class InferenceProcessor:
         '''Sets internal default keyword args `self._config`'''
         config = {
             'shell': kwargs.get('shell', 1000),
-            'patch_shape_in': kwargs.get('patch_shape_in', self.model.input[0].shape[-3:]),
+            'patch_shape_in': kwargs.get(
+                'patch_shape_in', self.model.input[0].shape[-3:]
+            ),
             'norms': kwargs.get('norm_val', {1000: 4000.0, 2000: 3000.0, 3000: 2000.0}),
-            'batch_size': kwargs.get('batch_size', 4)
+            'batch_size': kwargs.get('batch_size', 4),
         }
         return config
 
@@ -62,14 +64,14 @@ class InferenceProcessor:
         for key, val in self._config.items():
             print(f'    {key} -> {val}')
 
-    def load_raw_data_dict(self, dmri_in_fpath, bvec_in_fpath, bvec_out_fpath, mask_fpath):
+    def load_raw_data_dict(self, dmri_in, bvec_in, bvec_out, mask):
         '''Loads dMRI data into memory and zips to datasets dict
 
         Args:
-            dmri_in_fpath (str): Path to input dMRI data file.
-            bvec_in_fpath (str): Path to input b-vector data file.
-            bvec_out_fpath (str): Path to output b-vector data file.
-            mask_fpath (str): Path to brain mask file.
+            dmri_in (str): Path to input dMRI data file.
+            bvec_in (str): Path to input b-vector data file.
+            bvec_out (str): Path to output b-vector data file.
+            mask (str): Path to brain mask file.
 
         Returns:
             datasets (Dict[str,Any]):
@@ -80,9 +82,9 @@ class InferenceProcessor:
             context (Dict[str,Any]):
                 'affine': (np.ndarray) -> shape (4, 4)
         '''
-        dmri_in, affine = load_nifti(dmri_in_fpath)
-        mask, _ = load_nifti(mask_fpath, dtype=np.int8)
-        bvec_in, bvec_out = load_bvec(bvec_in_fpath), load_bvec(bvec_out_fpath)
+        dmri_in, affine = load_nifti(dmri_in)
+        mask, _ = load_nifti(mask, dtype=np.int8)
+        bvec_in, bvec_out = load_bvec(bvec_in), load_bvec(bvec_out)
 
         datasets = {
             'mask': mask,
@@ -218,7 +220,7 @@ class InferenceProcessor:
         self.assert_vec_input(bvec_in)
         self.assert_vec_output(bvec_out)
 
-        data = tf.data.Dataset.from_tensor_slices(((dmri_in, bvec_in, bvec_out), ))
+        data = tf.data.Dataset.from_tensor_slices(((dmri_in, bvec_in, bvec_out),))
         data = data.batch(self._config['batch_size'])
 
         # Run model inference

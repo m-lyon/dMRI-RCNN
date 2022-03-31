@@ -5,6 +5,7 @@ import tensorflow as tf
 
 class DatasetMapper:
     '''Base Datatset Mapper class'''
+
     def apply(self, data):
         '''Abstract apply method'''
         raise NotImplementedError
@@ -75,4 +76,4 @@ class CombineDatasets(FlatDatasetMapper):
         bvec_out = tf.data.Dataset.from_tensor_slices(data['bvec_out'])
         dmri_out = tf.data.Dataset.from_tensor_slices(data['dmri_out'])
 
-        return tf.data.Dataset.zip( ((dmri_in, bvec_in, bvec_out), dmri_out) )
+        return tf.data.Dataset.zip(((dmri_in, bvec_in, bvec_out), dmri_out))

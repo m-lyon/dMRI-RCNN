@@ -3,19 +3,21 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-from tensorflow.python.keras.utils import tf_utils # pylint: disable=no-name-in-module
+from tensorflow.python.keras.utils import tf_utils  # pylint: disable=no-name-in-module
 
 
 class DistributedConv3D(layers.Layer):
     '''TimeDistributed Conv3D'''
 
-    def __init__(self,
-                 filters,
-                 kernel_size,
-                 instance_norm=False,
-                 batch_norm=False,
-                 name='',
-                 activation='swish'):
+    def __init__(
+        self,
+        filters,
+        kernel_size,
+        instance_norm=False,
+        batch_norm=False,
+        name='',
+        activation='swish',
+    ):
         '''TimeDistributed Conv3D'''
         super().__init__(name=name)
         self.filters = filters
@@ -34,7 +36,9 @@ class DistributedConv3D(layers.Layer):
             'swish': layers.Activation(keras.activations.swish),
             'relu': layers.ReLU(),
         }
-        assert self.activation in act_layers, f'{self.activation} not in allowed activations.'
+        assert (
+            self.activation in act_layers
+        ), f'{self.activation} not in allowed activations.'
 
         return layers.TimeDistributed(
             act_layers[self.activation], name=f'{self.name}_{self.activation}'
@@ -46,14 +50,14 @@ class DistributedConv3D(layers.Layer):
                 self.filters,
                 self.kernel_size,
                 padding='same',
-                kernel_initializer=keras.initializers.he_uniform()
+                kernel_initializer=keras.initializers.he_uniform(),
             ),
-            name=f'{self.name}_conv'
+            name=f'{self.name}_conv',
         )
 
     def _get_norm_layer(self):
         if self.instance_norm:
-            return layers.LayerNormalization(axis=(-2,-3,-4))
+            return layers.LayerNormalization(axis=(-2, -3, -4))
         if self.batch_norm:
             return layers.BatchNormalization()
         return None
@@ -73,13 +77,15 @@ class DistributedConv3D(layers.Layer):
 
     def get_config(self):
         config = super().get_config()
-        config.update({
-            'filters': self.filters,
-            'kernel_size': self.kernel_size,
-            'batch_norm': self.batch_norm,
-            'instance_norm': self.instance_norm,
-            'activation': self.activation,
-        })
+        config.update(
+            {
+                'filters': self.filters,
+                'kernel_size': self.kernel_size,
+                'batch_norm': self.batch_norm,
+                'instance_norm': self.instance_norm,
+                'activation': self.activation,
+            }
+        )
         return config
 
     @tf_utils.shape_type_conversion
@@ -104,6 +110,7 @@ class RepeatBVector(layers.Layer):
     Output shape:
         (batch, time, spatial_dims, 3)
     '''
+
     def call(self, bvec, spatial_dims):
         # pylint: disable=arguments-differ
 
@@ -128,6 +135,7 @@ class RepeatTensor(layers.Layer):
             e.g. repeats = tf.shape(`ref_tensor`)[`ref_axis`]
         ref_axis (int): See above.
     '''
+
     def call(self, tensor, axis, ref_tensor, ref_axis):
         # pylint: disable=arguments-differ
         repeats = tf.shape(ref_tensor)[ref_axis]

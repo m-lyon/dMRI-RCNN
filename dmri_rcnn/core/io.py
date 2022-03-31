@@ -110,6 +110,7 @@ def autocrop_dmri(dmri, mask):
         dmri (np.ndarray): shape -> (i-ix, k-kx, j-jx, b)
         mask (np.ndarray): shape -> (i-ix, k-kx, j-jx)
     '''
+
     def _get_data_mask(dmri, mask, axis):
         new_mask = np.expand_dims(mask, axis=-1)
         data_mask = np.concatenate([dmri, new_mask], axis=-1)
@@ -118,17 +119,17 @@ def autocrop_dmri(dmri, mask):
         return data_mask
 
     # Axis 0
-    data_mask = _get_data_mask(dmri, mask, (1,2,3))
+    data_mask = _get_data_mask(dmri, mask, (1, 2, 3))
     dmri = dmri[data_mask, ...]
     mask = mask[data_mask, ...]
 
     # Axis 1
-    data_mask = _get_data_mask(dmri, mask, (0,2,3))
+    data_mask = _get_data_mask(dmri, mask, (0, 2, 3))
     dmri = dmri[:, data_mask, ...]
     mask = mask[:, data_mask, :]
 
     # Axis 2
-    data_mask = _get_data_mask(dmri, mask, (0,1,3))
+    data_mask = _get_data_mask(dmri, mask, (0, 1, 3))
     dmri = dmri[:, :, data_mask, :]
     mask = mask[:, :, data_mask]
 

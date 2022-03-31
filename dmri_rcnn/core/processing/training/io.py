@@ -59,10 +59,10 @@ def _parse_dataset_element(example_proto):
         'j': tf.io.FixedLenFeature([], tf.int64),
         'k': tf.io.FixedLenFeature([], tf.int64),
         'b': tf.io.FixedLenFeature([], tf.int64),
-        'dmri' : tf.io.FixedLenFeature([], tf.string),
-        'mask' : tf.io.FixedLenFeature([], tf.string),
-        'bvec' : tf.io.FixedLenFeature([], tf.string),
-        'bval' : tf.io.FixedLenFeature([], tf.string),
+        'dmri': tf.io.FixedLenFeature([], tf.string),
+        'mask': tf.io.FixedLenFeature([], tf.string),
+        'bvec': tf.io.FixedLenFeature([], tf.string),
+        'bval': tf.io.FixedLenFeature([], tf.string),
     }
 
     content = tf.io.parse_single_example(example_proto, feature_description)
