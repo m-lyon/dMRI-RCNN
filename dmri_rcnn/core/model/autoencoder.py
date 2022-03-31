@@ -36,6 +36,7 @@ def get_3d_encoder(**kwargs):
     Returns:
         encoder (tf.keras.models.Model): Encoder model.
     '''
+    # pylint: disable=no-member
     q_in = kwargs.setdefault('q_in', None)
     in_vox_shape = kwargs.setdefault('in_vox_shape', (10, 10, 10))
     lstm_size = kwargs.setdefault('lstm_size', 48)
@@ -249,6 +250,7 @@ def get_1d_encoder(**kwargs):
     Returns:
         encoder (tf.keras.models.Model): Encoder model.
     '''
+    # pylint: disable=no-member
     q_in = kwargs.setdefault('q_in', None)
     in_vox_shape = kwargs.setdefault('in_vox_shape', (10, 10, 10))
     lstm_size = kwargs.setdefault('lstm_size', 48)
