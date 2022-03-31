@@ -72,16 +72,16 @@ class Reshaper(DatasetMapper):
 
             # Rearrange bvec
             bvec = self._rearrange_bvec(bvec, num_patches, num_sets, self.subset_size)
-            bvec = tf.reshape(bvec, (-1, self.subset_size, 3)) # -> (X, fss, 3)
+            bvec = tf.reshape(bvec, (-1, self.subset_size, 3))  # -> (X, fss, 3)
 
             # Rearrange dMRI
             dmri = self._rearrange_dmri(dmri, num_patches, num_sets)
 
             # Split into input & output sets
-            data_out[shell]['dmri_in'] = dmri[:, 0:self.q_in, ...]
-            data_out[shell]['dmri_out'] = dmri[:, self.q_in:, ...]
-            data_out[shell]['bvec_in'] = bvec[:, 0:self.q_in, :]
-            data_out[shell]['bvec_out'] = bvec[:, self.q_in:]
+            data_out[shell]['dmri_in'] = dmri[:, 0 : self.q_in, ...]
+            data_out[shell]['dmri_out'] = dmri[:, self.q_in :, ...]
+            data_out[shell]['bvec_in'] = bvec[:, 0 : self.q_in, :]
+            data_out[shell]['bvec_out'] = bvec[:, self.q_in :]
 
         return data_out
 
@@ -108,7 +108,7 @@ class Reshaper(DatasetMapper):
         return dmri, bvec
 
     @tf.function
-    def _rearrange_bvec(self, bvec, num_patches, num_sets, subset_size):
+    def _rearrange_bvec(self, bvec, num_patches, num_sets, set_size):
         '''Rearranges bvec ready to be sliced to I/O sets
 
         Args:
@@ -120,10 +120,10 @@ class Reshaper(DatasetMapper):
         Returns:
             bvec (tf.Tensor): shape -> (N, S, fss, 3), dtype -> tf.float32
         '''
-        bvec = tf.expand_dims(bvec, axis=0) # -> (1, 3, fs)
-        bvec = tf.repeat(bvec, num_patches, axis=0) # -> (N, 3, fs)
-        bvec = tf.reshape(bvec, (num_patches, 3, num_sets, subset_size)) # -> (N, 3, S, fss)
-        bvec = tf.transpose(bvec, perm=[0, 2, 3, 1]) # -> (N, S, fss, 3)
+        bvec = tf.expand_dims(bvec, axis=0)  # -> (1, 3, fs)
+        bvec = tf.repeat(bvec, num_patches, axis=0)  # -> (N, 3, fs)
+        bvec = tf.reshape(bvec, (num_patches, 3, num_sets, set_size))  # -> (N, 3, S, fss)
+        bvec = tf.transpose(bvec, perm=[0, 2, 3, 1])  # -> (N, S, fss, 3)
 
         return bvec
 

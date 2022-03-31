@@ -37,9 +37,7 @@ class ZenodoWeight:
         self.paths = [self.index]
         for idx in range(num_weights):
             self.paths.append(
-                ZenodoPath(
-                    record, f'weights.data-{idx:05d}-of-{num_weights:05d}'
-                )
+                ZenodoPath(record, f'weights.data-{idx:05d}-of-{num_weights:05d}')
             )
 
     def __iter__(self):

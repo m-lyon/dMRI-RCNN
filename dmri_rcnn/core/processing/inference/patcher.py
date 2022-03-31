@@ -5,6 +5,7 @@ import einops as ein
 
 from .base import Operation
 
+
 class Patcher(Operation):
     '''Splits data into 3D patches'''
 
@@ -26,13 +27,13 @@ class Patcher(Operation):
             patch_size = patch_shape[idx]
             pad = size % patch_size
             if pad == 0:
-                padding += ((0, 0), )
+                padding += ((0, 0),)
             else:
                 total_pad = patch_size - pad
                 if total_pad % 2 == 0:
-                    padding += ((total_pad // 2, total_pad // 2), )
+                    padding += ((total_pad // 2, total_pad // 2),)
                 else:
-                    padding += ((total_pad // 2, (total_pad // 2) + 1), )
+                    padding += ((total_pad // 2, (total_pad // 2) + 1),)
 
         return padding
 
@@ -74,9 +75,9 @@ class Patcher(Operation):
                 shape -> (i, j, k, ...)
         '''
         data_array = data_array[
-            padding[0][0] or None: -padding[0][1] or None,
-            padding[1][0] or None: -padding[1][1] or None,
-            padding[2][0] or None: -padding[2][1] or None
+            padding[0][0] or None : -padding[0][1] or None,
+            padding[1][0] or None : -padding[1][1] or None,
+            padding[2][0] or None : -padding[2][1] or None,
         ]
 
         return data_array
@@ -98,12 +99,12 @@ class Patcher(Operation):
         nums = ()
         for idx, pad in enumerate(padding):
             orig_size = orig_shape[idx]
-            patch_size = data_array.shape[idx+1]
+            patch_size = data_array.shape[idx + 1]
 
             new_size = orig_size + pad[0] + pad[1]
             assert new_size % patch_size == 0
 
-            nums += (new_size // patch_size, )
+            nums += (new_size // patch_size,)
 
         data_array = ein.rearrange(
             data_array,
@@ -165,7 +166,9 @@ class Patcher(Operation):
         context['mask_filter'] = mask_filter
 
         # Pad dMRI
-        datasets['dmri_in'] = cls._apply_padding(datasets['dmri_in'], context['padding'])
+        datasets['dmri_in'] = cls._apply_padding(
+            datasets['dmri_in'], context['padding']
+        )
 
         # Slice into patches
         datasets['dmri_in'] = ein.rearrange(
@@ -232,7 +235,9 @@ class Patcher(Operation):
         datasets['dmri_out'] = datasets['dmri_out'][order, ...]
 
         # Recombine
-        datasets['dmri_out'] = cls._combine_data(datasets['dmri_out'], padding, orig_shape)
+        datasets['dmri_out'] = cls._combine_data(
+            datasets['dmri_out'], padding, orig_shape
+        )
 
         # Remove padding
         datasets['dmri_out'] = cls._remove_padding(datasets['dmri_out'], padding)

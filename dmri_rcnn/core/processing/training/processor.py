@@ -50,7 +50,7 @@ class TrainingProcessor:
         '''
         seed = kwargs.get('random_seed', True)
         shell_var = kwargs.get('shell_var', 30.0)
-        norms = kwargs.get('norms', {1000: 4000., 2000: 3000., 3000: 2000.})
+        norms = kwargs.get('norms', {1000: 4000.0, 2000: 3000.0, 3000: 2000.0})
 
         self.shell_filter = ShellFilter(shells, shell_var=shell_var)
         self.shell_reorder = ShellReorder(q_in, q_out, random_seed=seed)
@@ -75,11 +75,11 @@ class TrainingProcessor:
 
         return datasets
 
-    def load_data(self, data_fpaths, bsize=4, run_par=True, validation=False, buffer_size=10000):
+    def load_data(self, fpaths, bsize=4, run_par=True, validation=False, buffer_size=10000):
         '''Creates pre-processing pipeline, ready for training
 
         Args:
-            data_fpaths (List[str, ...]): List of .tfrecord filepaths containing
+            fpaths (List[str, ...]): List of .tfrecord filepaths containing
                 training data examples
             bsize (int): Batch size of training examples. Lower this if experiencing
                 GPU OOM problems.
@@ -94,7 +94,7 @@ class TrainingProcessor:
         Returns:
             datasets (tf.data.Dataset): Dataset with preprocessing mapping.
         '''
-        dataset = load_tfrecord_data(data_fpaths)
+        dataset = load_tfrecord_data(fpaths)
         dataset = self(dataset, run_par=run_par, validation=validation)
         if not validation:
             dataset = dataset.shuffle(buffer_size=buffer_size)

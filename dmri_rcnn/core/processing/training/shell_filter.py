@@ -85,7 +85,9 @@ class ShellFilter(DatasetMapper):
             data_use[shell] = {}
             shell_index = tf.range(tf.shape(bval)[0])
 
-            shell_filter = self._get_shell_filter(tf.constant(shell, dtype=tf.float32), bval)
+            shell_filter = self._get_shell_filter(
+                tf.constant(shell, dtype=tf.float32), bval
+            )
             take_filter = shell_index[shell_filter]
 
             data_use[shell]['dmri'] = tf.gather(dmri, take_filter, axis=-1)

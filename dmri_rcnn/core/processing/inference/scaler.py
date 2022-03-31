@@ -48,7 +48,7 @@ class Scaler(Operation):
         print('Normalizing dMRI data...')
 
         # Get xmin xmax
-        xmin, xmax = 0., kwargs['norms'][kwargs['shell']]
+        xmin, xmax = 0.0, kwargs['norms'][kwargs['shell']]
 
         # Apply rescaling
         datasets['dmri_in'] = cls.apply(datasets['dmri_in'], xmin, xmax)

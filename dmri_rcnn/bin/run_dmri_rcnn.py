@@ -51,46 +51,81 @@ def main(args):
         model = get_1d_autoencoder(weights)
 
     processor = InferenceProcessor(model, shell=args.shell, batch_size=args.batch_size)
-    processor.run_subject(args.dmri_in, args.bvec_in, args.bvec_out, args.mask, args.dmri_out)
+    processor.run_subject(
+        args.dmri_in, args.bvec_in, args.bvec_out, args.mask, args.dmri_out
+    )
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('dMRI RCNN Angular Super-resolution')
     parser.add_argument(
-        '-dmri_in', dest='dmri_in', type=fpath, required=True,
-        help='Context dMRI NIfTI volume. Must be single-shell and contain q_in 3D volumes'
+        '-dmri_in',
+        dest='dmri_in',
+        type=fpath,
+        required=True,
+        help='Context dMRI NIfTI volume. Must be single-shell and contain q_in 3D volumes',
     )
     parser.add_argument(
-        '-bvec_in', dest='bvec_in', type=fpath, required=True,
-        help='Context b-vectory text file. Whitespace delimited with 3 rows and q_in columns'
+        '-bvec_in',
+        dest='bvec_in',
+        type=fpath,
+        required=True,
+        help='Context b-vectory text file. Whitespace delimited with 3 rows and q_in columns',
     )
     parser.add_argument(
-        '-bvec_out', dest='bvec_out', type=fpath, required=True,
-        help='Target b-vector text file. Whitespace delimited with 3 rows and q_out columns'
+        '-bvec_out',
+        dest='bvec_out',
+        type=fpath,
+        required=True,
+        help='Target b-vector text file. Whitespace delimited with 3 rows and q_out columns',
     )
     parser.add_argument(
-        '-mask', dest='mask', type=fpath, required=True,
-        help='Brain mask NIfTI volume. Must have space spatial dimensions as dmri_in.'
+        '-mask',
+        dest='mask',
+        type=fpath,
+        required=True,
+        help='Brain mask NIfTI volume. Must have space spatial dimensions as dmri_in.',
     )
     parser.add_argument(
-        '-dmri_out', dest='dmri_out', type=str, required=True,
-        help='Inferred dMRI NIfTI volume. This will contain q_out inferred volumes.'
+        '-dmri_out',
+        dest='dmri_out',
+        type=str,
+        required=True,
+        help='Inferred dMRI NIfTI volume. This will contain q_out inferred volumes.',
     )
     parser.add_argument(
-        '-s', '--shell', dest='shell', type=int, choices=[1000, 2000, 3000], required=True,
-        help='Shell to perform inference on. Must be same shell as context/target dMRI and b-vecs'
+        '-s',
+        '--shell',
+        dest='shell',
+        type=int,
+        choices=[1000, 2000, 3000],
+        required=True,
+        help='Shell to perform inference on. Must be same shell as context/target dMRI and b-vecs',
     )
     parser.add_argument(
-        '-m', '--model-dim', dest='model_dim', type=int, choices=[1, 3], default=3,
-        help='Model dimensionality, choose either 1 or 3.'
+        '-m',
+        '--model-dim',
+        dest='model_dim',
+        type=int,
+        choices=[1, 3],
+        default=3,
+        help='Model dimensionality, choose either 1 or 3.',
     )
     parser.add_argument(
-        '-c', '--combined', dest='combined', action='store_true', default=False,
-        help='Use combined shell model. Currently only applicable with 3D model and 10 q_in.'
+        '-c',
+        '--combined',
+        dest='combined',
+        action='store_true',
+        default=False,
+        help='Use combined shell model. Currently only applicable with 3D model and 10 q_in.',
     )
     parser.add_argument(
-        '-b', '--batch-size', dest='batch_size', type=int, default=4,
-        help='Batch size to run model inference with.'
+        '-b',
+        '--batch-size',
+        dest='batch_size',
+        type=int,
+        default=4,
+        help='Batch size to run model inference with.',
     )
 
     arguments = parser.parse_args()

@@ -52,27 +52,45 @@ def get_3d_encoder(**kwargs):
     qspace_tensor = layers.Concatenate()([img_tensor, bvec_tensor])
 
     # Initial B-vector convolution
-    init_tensor = DistributedConv3D(200, 1, name='init', instance_norm=True)(qspace_tensor)
+    init_tensor = DistributedConv3D(200, 1, name='init', instance_norm=True)(
+        qspace_tensor
+    )
 
     # Subsequent convolutional layers to extract features
-    conv11_tensor = DistributedConv3D(104, 1, name='ecv11', instance_norm=True)(init_tensor)
-    conv12_tensor = DistributedConv3D(200, 2, name='ecv12', instance_norm=True)(init_tensor)
-    conv13_tensor = DistributedConv3D(72, 3, name='ecv13', instance_norm=True)(init_tensor)
+    conv11_tensor = DistributedConv3D(104, 1, name='ecv11', instance_norm=True)(
+        init_tensor
+    )
+    conv12_tensor = DistributedConv3D(200, 2, name='ecv12', instance_norm=True)(
+        init_tensor
+    )
+    conv13_tensor = DistributedConv3D(72, 3, name='ecv13', instance_norm=True)(
+        init_tensor
+    )
     conv1_tensor = layers.Concatenate()(
         [conv11_tensor, conv12_tensor, conv13_tensor, qspace_tensor]
     )
 
     # Second convolutional block
-    conv21_tensor = DistributedConv3D(280, 1, name='ecv21', batch_norm=True)(conv1_tensor)
-    conv22_tensor = DistributedConv3D(240, 2, name='ecv22', batch_norm=True)(conv1_tensor)
-    conv23_tensor = DistributedConv3D(144, 3, name='ecv23', batch_norm=True)(conv1_tensor)
+    conv21_tensor = DistributedConv3D(280, 1, name='ecv21', batch_norm=True)(
+        conv1_tensor
+    )
+    conv22_tensor = DistributedConv3D(240, 2, name='ecv22', batch_norm=True)(
+        conv1_tensor
+    )
+    conv23_tensor = DistributedConv3D(144, 3, name='ecv23', batch_norm=True)(
+        conv1_tensor
+    )
     conv2_tensor = layers.Concatenate()(
         [conv21_tensor, conv22_tensor, conv23_tensor, qspace_tensor]
     )
 
     # Compress to latent space
-    latent_tensor = DistributedConv3D(32, 1, name='ecvl1', batch_norm=True)(conv2_tensor)
-    latent_tensor = DistributedConv3D(88, 1, name='ecvl2', batch_norm=True)(latent_tensor)
+    latent_tensor = DistributedConv3D(32, 1, name='ecvl1', batch_norm=True)(
+        conv2_tensor
+    )
+    latent_tensor = DistributedConv3D(88, 1, name='ecvl2', batch_norm=True)(
+        latent_tensor
+    )
 
     out_tensor = layers.ConvLSTM3D(lstm_size, 1, name='conv_lstm')(latent_tensor)
 
@@ -112,29 +130,44 @@ def get_3d_decoder(**kwargs):
     latent_tensor = layers.Concatenate()([state_tensor, bvec_tensor])
 
     # Initial B-vector convolution
-    latent_tensor = DistributedConv3D(176, 1, name='dcvl1', batch_norm=True)(latent_tensor)
-    latent_tensor = DistributedConv3D(224, 1, name='dcvl2', batch_norm=True)(latent_tensor)
+    latent_tensor = DistributedConv3D(176, 1, name='dcvl1', batch_norm=True)(
+        latent_tensor
+    )
+    latent_tensor = DistributedConv3D(224, 1, name='dcvl2', batch_norm=True)(
+        latent_tensor
+    )
     latent_tensor = layers.Concatenate()([latent_tensor, bvec_tensor])
 
     # Subsequent convolutional layers to extract features
-    conv11_tensor = DistributedConv3D(240, 1, name='dcv11', batch_norm=True)(latent_tensor)
-    conv12_tensor = DistributedConv3D(256, 2, name='dcv12', batch_norm=True)(latent_tensor)
-    conv13_tensor = DistributedConv3D(136, 3, name='dcv13', batch_norm=True)(latent_tensor)
+    conv11_tensor = DistributedConv3D(240, 1, name='dcv11', batch_norm=True)(
+        latent_tensor
+    )
+    conv12_tensor = DistributedConv3D(256, 2, name='dcv12', batch_norm=True)(
+        latent_tensor
+    )
+    conv13_tensor = DistributedConv3D(136, 3, name='dcv13', batch_norm=True)(
+        latent_tensor
+    )
     conv1_tensor = layers.Concatenate()(
         [conv11_tensor, conv12_tensor, conv13_tensor, bvec_tensor]
     )
 
     # Second convolutional block
-    conv21_tensor = DistributedConv3D(176, 1, name='dcv21', batch_norm=True)(conv1_tensor)
-    conv22_tensor = DistributedConv3D(136, 2, name='dcv22', batch_norm=True)(conv1_tensor)
-    conv23_tensor = DistributedConv3D(88, 3, name='dcv23', batch_norm=True)(conv1_tensor)
+    conv21_tensor = DistributedConv3D(176, 1, name='dcv21', batch_norm=True)(
+        conv1_tensor
+    )
+    conv22_tensor = DistributedConv3D(136, 2, name='dcv22', batch_norm=True)(
+        conv1_tensor
+    )
+    conv23_tensor = DistributedConv3D(88, 3, name='dcv23', batch_norm=True)(
+        conv1_tensor
+    )
     conv2_tensor = layers.Concatenate()(
         [conv21_tensor, conv22_tensor, conv23_tensor, bvec_tensor]
     )
 
     conv3_tensor = DistributedConv3D(16, 1, name='dcv3')(conv2_tensor)
-    out_tensor = DistributedConv3D(
-        1, 1, name='dc4', activation='relu')(conv3_tensor)
+    out_tensor = DistributedConv3D(1, 1, name='dc4', activation='relu')(conv3_tensor)
 
     out_tensor = layers.Lambda(lambda x: tf.squeeze(x, axis=-1))(out_tensor)
 
@@ -191,7 +224,7 @@ def get_3d_autoencoder(weights=None, **kwargs):
     autoencoder = keras.models.Model(
         inputs=[encoder_imgs, encoder_vecs, decoder_vecs],
         outputs=out_imgs,
-        name='autoencoder'
+        name='autoencoder',
     )
 
     autoencoder.compile(loss=loss, optimizer=get_adam_opt())
@@ -232,27 +265,35 @@ def get_1d_encoder(**kwargs):
     qspace_tensor = layers.Concatenate()([img_tensor, bvec_tensor])
 
     # Initial B-vector convolution
-    init_tensor = DistributedConv3D(200, 1, name='init', instance_norm=True)(qspace_tensor)
+    init_tensor = DistributedConv3D(200, 1, name='init', instance_norm=True)(
+        qspace_tensor
+    )
 
     # Subsequent convolutional layers to extract features
-    conv11_tensor = DistributedConv3D(376, 1, name='ecv11', instance_norm=True)(init_tensor)
-    conv1_tensor = layers.Concatenate()(
-        [conv11_tensor, qspace_tensor]
+    conv11_tensor = DistributedConv3D(376, 1, name='ecv11', instance_norm=True)(
+        init_tensor
     )
+    conv1_tensor = layers.Concatenate()([conv11_tensor, qspace_tensor])
 
     # Second convolutional block
-    conv21_tensor = DistributedConv3D(664, 1, name='ecv21', batch_norm=True)(conv1_tensor)
-    conv2_tensor = layers.Concatenate()(
-        [conv21_tensor, qspace_tensor]
+    conv21_tensor = DistributedConv3D(664, 1, name='ecv21', batch_norm=True)(
+        conv1_tensor
     )
+    conv2_tensor = layers.Concatenate()([conv21_tensor, qspace_tensor])
 
     # Compress to latent space
-    latent_tensor = DistributedConv3D(32, 1, name='ecvl1', batch_norm=True)(conv2_tensor)
-    latent_tensor = DistributedConv3D(88, 1, name='ecvl2', batch_norm=True)(latent_tensor)
+    latent_tensor = DistributedConv3D(32, 1, name='ecvl1', batch_norm=True)(
+        conv2_tensor
+    )
+    latent_tensor = DistributedConv3D(88, 1, name='ecvl2', batch_norm=True)(
+        latent_tensor
+    )
 
     out_tensor = layers.ConvLSTM3D(lstm_size, 1, name='conv_lstm')(latent_tensor)
 
-    encoder = keras.models.Model(inputs=[input_img, input_vec], outputs=out_tensor, name='encoder')
+    encoder = keras.models.Model(
+        inputs=[input_img, input_vec], outputs=out_tensor, name='encoder'
+    )
 
     return encoder
 
@@ -286,26 +327,29 @@ def get_1d_decoder(**kwargs):
     latent_tensor = layers.Concatenate()([state_tensor, bvec_tensor])
 
     # Initial B-vector convolution
-    latent_tensor = DistributedConv3D(176, 1, name='dcvl1', batch_norm=True)(latent_tensor)
-    latent_tensor = DistributedConv3D(224, 1, name='dcvl2', batch_norm=True)(latent_tensor)
+    latent_tensor = DistributedConv3D(176, 1, name='dcvl1', batch_norm=True)(
+        latent_tensor
+    )
+    latent_tensor = DistributedConv3D(224, 1, name='dcvl2', batch_norm=True)(
+        latent_tensor
+    )
     latent_tensor = layers.Concatenate()([latent_tensor, bvec_tensor])
 
     # Subsequent convolutional layers to extract features
-    conv11_tensor = DistributedConv3D(632, 1, name='dcv11', batch_norm=True)(latent_tensor)
-    conv1_tensor = layers.Concatenate()(
-        [conv11_tensor, bvec_tensor]
+    conv11_tensor = DistributedConv3D(632, 1, name='dcv11', batch_norm=True)(
+        latent_tensor
     )
+    conv1_tensor = layers.Concatenate()([conv11_tensor, bvec_tensor])
 
     # Second convolutional block
-    conv21_tensor = DistributedConv3D(400, 1, name='dcv21', batch_norm=True)(conv1_tensor)
-    conv2_tensor = layers.Concatenate()(
-        [conv21_tensor, bvec_tensor]
+    conv21_tensor = DistributedConv3D(400, 1, name='dcv21', batch_norm=True)(
+        conv1_tensor
     )
+    conv2_tensor = layers.Concatenate()([conv21_tensor, bvec_tensor])
 
     conv3_tensor = DistributedConv3D(16, 1, name='dcv3')(conv2_tensor)
 
-    out_tensor = DistributedConv3D(
-        1, 1, name='dc4', activation='relu')(conv3_tensor)
+    out_tensor = DistributedConv3D(1, 1, name='dc4', activation='relu')(conv3_tensor)
 
     out_tensor = layers.Lambda(lambda x: tf.squeeze(x, axis=-1))(out_tensor)
 
@@ -363,7 +407,7 @@ def get_1d_autoencoder(weights=None, **kwargs):
     autoencoder = keras.models.Model(
         inputs=[encoder_imgs, encoder_vecs, decoder_vecs],
         outputs=out_imgs,
-        name='autoencoder'
+        name='autoencoder',
     )
 
     autoencoder.compile(loss=loss, optimizer=get_adam_opt())
