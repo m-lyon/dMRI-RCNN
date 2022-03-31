@@ -20,10 +20,9 @@ def get_adam_opt():
     adam.decay = tf.Variable(0.0)
 
     return adam
-adam = get_adam_opt()
 
 
-def get_3D_encoder(**kwargs):
+def get_3d_encoder(**kwargs):
     '''Genereates the encoder
 
     Keyword Args:
@@ -84,7 +83,7 @@ def get_3D_encoder(**kwargs):
     return encoder
 
 
-def get_3D_decoder(**kwargs):
+def get_3d_decoder(**kwargs):
     '''Genereates the decoder
 
     Keyword Args:
@@ -147,7 +146,7 @@ def get_3D_decoder(**kwargs):
     return decoder
 
 
-def get_3D_autoencoder(weights=None, **kwargs):
+def get_3d_autoencoder(weights=None, **kwargs):
     '''Generates Autoencoder Model
 
     Args:
@@ -177,8 +176,8 @@ def get_3D_autoencoder(weights=None, **kwargs):
     loss = kwargs.get('loss', 'mae')
 
     # Instantiate encoder & decoder models
-    encoder = get_3D_encoder(**kwargs)
-    decoder = get_3D_decoder(**kwargs)
+    encoder = get_3d_encoder(**kwargs)
+    decoder = get_3d_decoder(**kwargs)
 
     # Define inputs
     encoder_imgs = keras.Input(shape=(q_in,) + in_vox_shape, name='enc_images')
@@ -203,7 +202,7 @@ def get_3D_autoencoder(weights=None, **kwargs):
     return autoencoder
 
 
-def get_1D_encoder(**kwargs):
+def get_1d_encoder(**kwargs):
     '''Genereates the encoder. This is 1D in the sense that all operations are pointwise.
 
     Keyword Args:
@@ -258,7 +257,7 @@ def get_1D_encoder(**kwargs):
     return encoder
 
 
-def get_1D_decoder(**kwargs):
+def get_1d_decoder(**kwargs):
     '''Genereates the decoder. This is 1D in the sense that all operations are pointwise.
 
     Keyword Args:
@@ -318,7 +317,7 @@ def get_1D_decoder(**kwargs):
     return decoder
 
 
-def get_1D_autoencoder(weights=None, **kwargs):
+def get_1d_autoencoder(weights=None, **kwargs):
     '''Generates Autoencoder Model.
         Model is 1D in the sense that all operations are pointwise.
 
@@ -349,8 +348,8 @@ def get_1D_autoencoder(weights=None, **kwargs):
     loss = kwargs.get('loss', 'mae')
 
     # Instantiate encoder & decoder models
-    encoder = get_1D_encoder(**kwargs)
-    decoder = get_1D_decoder(**kwargs)
+    encoder = get_1d_encoder(**kwargs)
+    decoder = get_1d_decoder(**kwargs)
 
     # Define inputs
     encoder_imgs = keras.Input(shape=(q_in,) + in_vox_shape, name='enc_images')

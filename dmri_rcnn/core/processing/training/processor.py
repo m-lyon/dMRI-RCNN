@@ -11,7 +11,7 @@ from .io import load_tfrecord_data
 
 class TrainingProcessor:
     '''Training pipeline
-    
+
     Applies following steps:
         1) Filter out unwanted shells, ie. those != `shell`
         2) Re-orders qspace into near optimal given set sizes
@@ -75,13 +75,13 @@ class TrainingProcessor:
 
         return datasets
 
-    def load_data(self, data_fpaths, batch_size=4, run_par=True, validation=False, buffer_size=10000):
+    def load_data(self, data_fpaths, bsize=4, run_par=True, validation=False, buffer_size=10000):
         '''Creates pre-processing pipeline, ready for training
-        
+
         Args:
             data_fpaths (List[str, ...]): List of .tfrecord filepaths containing
                 training data examples
-            batch_size (int): Batch size of training examples. Lower this if experiencing
+            bsize (int): Batch size of training examples. Lower this if experiencing
                 GPU OOM problems.
             run_par (bool): Run data loading in parallel. Will use all available
                 CPUs. Default: `True`
@@ -98,6 +98,6 @@ class TrainingProcessor:
         dataset = self(dataset, run_par=run_par, validation=validation)
         if not validation:
             dataset = dataset.shuffle(buffer_size=buffer_size)
-        dataset = dataset.batch(batch_size=batch_size)
+        dataset = dataset.batch(batch_size=bsize)
 
         return dataset

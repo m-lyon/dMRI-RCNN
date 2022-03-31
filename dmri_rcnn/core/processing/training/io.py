@@ -65,7 +65,6 @@ def _parse_dataset_element(example_proto):
         'bval' : tf.io.FixedLenFeature([], tf.string),
     }
 
-    # pylint: disable=no-value-for-parameter
     content = tf.io.parse_single_example(example_proto, feature_description)
 
     i, j, k, b = content['i'], content['j'], content['k'], content['b']
@@ -102,15 +101,17 @@ def save_tfrecord_data(dmri, bvec, bval, mask, fpath):
         writer.write(proto.SerializeToString())
 
 
-def load_tfrecord_data(data_fpaths):
+def load_tfrecord_data(data_fpaths, run_par=True):
     '''Loads tfrecord datasets object
     (actual dataset loading into memory is done later)
 
     Args:
         data_fpaths (List[str,]): List of dataset files.
+        run_par (bool): Load data in parallel.
 
     Returns:
         (tf.data.Dataset): Dataset object
     '''
     raw_data = tf.data.TFRecordDataset(data_fpaths)
-    return raw_data.map(lambda x: _parse_dataset_element(x))
+    num_pcalls = tf.data.AUTOTUNE if run_par else None
+    return raw_data.map(_parse_dataset_element, num_parallel_calls=num_pcalls)
