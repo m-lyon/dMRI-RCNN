@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:latest
 
 FROM tensorflow/tensorflow:2.7.1
-RUN pip install dmri-rcnn
+RUN pip install --no-deps einops pyparsing packaging nibabel tqdm dmri-rcnn
 RUN dmri_rcnn_download_all_weights.py
