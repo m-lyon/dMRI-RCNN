@@ -12,7 +12,7 @@ install_deps = [
     'tqdm',
 ]
 
-version = '0.2.1'
+version = '0.2.2'
 this_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -32,7 +32,7 @@ setup(
     license='MIT License',
     packages=find_namespace_packages(),
     install_requires=install_deps,
-    scripts=['dmri_rcnn/bin/run_dmri_rcnn.py'],
+    scripts=['dmri_rcnn/bin/run_dmri_rcnn.py', 'dmri_rcnn/bin/dmri_rcnn_download_all_weights.py'],
     classifiers=[
         'Programming Language :: Python',
         'Operating System :: Unix',

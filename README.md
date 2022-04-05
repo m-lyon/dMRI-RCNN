@@ -6,6 +6,12 @@
 
 This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN.
 
+## Table of contents
+* [Installation](#installation)
+* [Inference](#inference)
+* [Training](#training)
+* [Docker](#docker)
+
 ## Installation
 `dMRI-RCNN` can be installed by via pip:
 ```bash
@@ -13,7 +19,7 @@ pip install dmri-rcnn
 ```
 
 ### Requirements
-`dMRI-RCNN` uses [TensorFlow](https://www.tensorflow.org/) as the deep learning architecture.
+`dMRI-RCNN` uses [TensorFlow](https://www.tensorflow.org/) as the deep learning architecture. To enable [GPU usage within TensorFlow](https://www.tensorflow.org/install/gpu), you should ensure the appropriate prerequisites are installed.
 
 Listed below are the requirements for this package.
 - `tensorflow>=2.6.0`
@@ -145,7 +151,21 @@ validation_data = processor.load_data(['/path/to/val_data0.tfrecord'], validatio
 model.fit(train_data, epochs=10, validation_data=validation_data)
 ```
 
+## Docker
+You can also use `dMRI-RCNN` directly via [Docker](https://www.docker.com/). Both a CPU and GPU version of the project are available.
+
+### CPU
+To use `dMRI-RCNN` with the CPU only, use:
+```bash
+sudo docker run -v /absolute/path/to/my/data/directory:/data -it -t mlyon93/dmri-rcnn-cpu:latest
+```
+
+### GPU
+To use `dMRI-RCNN` with the GPU, first ensure the [appropriate NVIDIA prerequisites](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker) have been installed. Then use:
+```bash
+sudo docker run --gpus all -v /absolute/path/to/my/data/directory:/data -it -t mlyon93/dmri-rcnn-gpu:latest
+```
+
 ## Roadmap
 Future Additions & Improvements:
 - Plot functionality
-- Docker support.

@@ -109,7 +109,7 @@ if __name__ == '__main__':
         type=int,
         choices=[1, 3],
         default=3,
-        help='Model dimensionality, choose either 1 or 3.',
+        help='Model dimensionality, choose either 1 or 3. Default: 3.',
     )
     parser.add_argument(
         '-c',

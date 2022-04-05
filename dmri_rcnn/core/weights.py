@@ -1,5 +1,6 @@
 '''Pretrained weights functions'''
 
+from typing import Union
 import os
 
 from urllib.request import urlretrieve
@@ -95,12 +96,13 @@ def download_url(url, output_path):
         urlretrieve(url, filename=output_path, reporthook=pbar.update_to)
 
 
-def get_weights(model_dim: int, shell: int, q_in: int, combined: bool = False) -> str:
+def get_weights(model_dim: int, shell: Union[int, str], q_in: int) -> str:
     '''Gets weights given model parameters, will download if not present.
 
     Args:
         model_dim: Model dimensionality, either 1 or 3
-        shell: dMRI shell
+        shell: dMRI shell, either provide int value or "all" str
+            to get model weights for combined model
         q_in: Number of input q-space samples
         combined: Return combined model if available
 
@@ -109,25 +111,26 @@ def get_weights(model_dim: int, shell: int, q_in: int, combined: bool = False) -
             Will raise a RuntimeError if not found.
     '''
     try:
-        if combined:
+        if shell == 'all':
             weight_dir = os.path.join(LOCAL_DIR, f'{model_dim}D_RCNN', f'{q_in}in')
-            weight_urls = WEIGHT_URLS[f'{model_dim}D'][shell]['all']
         else:
             weight_dir = os.path.join(
                 LOCAL_DIR, f'{model_dim}D_RCNN', f'b{shell}_{q_in}in'
             )
-            weight_urls = WEIGHT_URLS[f'{model_dim}D'][shell][q_in]
+        weight_urls = WEIGHT_URLS[f'{model_dim}D'][shell][q_in]
     except KeyError:
         raise AttributeError(
             'Weights in given configuration not found: '
-            + f'{model_dim = }, {shell = }, {q_in = }, {combined = }'
+            + f'{model_dim = }, {shell = }, {q_in = }'
         ) from None
 
     if not os.path.exists(weight_dir):
         os.makedirs(weight_dir)
 
     for weight in weight_urls:
-        if not os.path.exists(os.path.join(weight_dir, weight.fname)):
+        if os.path.exists(os.path.join(weight_dir, weight.fname)):
+            print('Model weights already present.')
+        else:
             download_url(weight.url, os.path.join(weight_dir, weight.fname))
 
     return os.path.join(weight_dir, 'weights')
