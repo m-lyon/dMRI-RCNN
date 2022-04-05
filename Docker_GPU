@@ -1,0 +1,5 @@
+# syntax=docker/dockerfile:latest
+
+FROM nvcr.io/nvidia/tensorflow:22.03-tf2-py3
+RUN pip install dmri-rcnn
+RUN dmri_rcnn_download_all_weights.py
