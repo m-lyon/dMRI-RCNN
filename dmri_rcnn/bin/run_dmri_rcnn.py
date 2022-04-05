@@ -43,7 +43,10 @@ def main(args):
     '''Kicks off main script'''
     args.q_in, args.q_out = get_q_in(args.bvec_in, args.bvec_out)
     print_args(args)
-    weights = get_weights(args.model_dim, args.shell, args.q_in, args.combined)
+    if args.combined:
+        weights = get_weights(args.model_dim, 'all', args.q_in)
+    else:
+        weights = get_weights(args.model_dim, args.shell, args.q_in)
 
     if args.model_dim == 3:
         model = get_3d_autoencoder(weights)
