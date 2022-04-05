@@ -72,7 +72,7 @@ optional arguments:
   -s {1000,2000,3000}, --shell {1000,2000,3000}
                         Shell to perform inference with. Must be same shell as context/target dMRI and b-vectors
   -m {1,3}, --model-dim {1,3}
-                        Model dimensionality, choose either 1 or 3.
+                        Model dimensionality, choose either 1 or 3. Default: 3.
   -c, --combined        Use combined shell model. Currently only applicable with 3D model and 10 q_in.
   -b BATCH_SIZE, --batch-size BATCH_SIZE
                         Batch size to run model inference with.
@@ -135,7 +135,7 @@ from dmri_rcnn.core.processing import TrainingProcessor
 # If we want to fine-tune the model we can load the previously obtained weights.
 # In this example we'll load the weights for the 3D RCNN trained on the b = 1000
 # shell and 6 q-space samples per input.
-weights = get_weights(model_dim=3, shell=1000, q_in=6, combined=False)
+weights = get_weights(model_dim=3, shell=1000, q_in=6)
 
 # Now we can instantiate the pre-compiled 3D model
 model = get_3d_autoencoder(weights) # Omit the weights argument to load without pre-trained weights
