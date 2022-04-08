@@ -4,7 +4,7 @@ import tensorflow as tf
 
 from ...io import load_nifti, load_bvec, save_nifti
 
-from .scaler import Scaler
+from .scaler import Scaler, ScalerNorm
 from .patcher import Patcher
 from .reshaper import Reshaper
 
@@ -41,7 +41,7 @@ class InferenceProcessor:
             'patch_shape_in': kwargs.get(
                 'patch_shape_in', self.model.input[0].shape[-3:]
             ),
-            'norms': kwargs.get('norm_val', {1000: 4000.0, 2000: 3000.0, 3000: 2000.0}),
+            'norms': kwargs.get('norms', {1000: 4000.0, 2000: 3000.0, 3000: 2000.0}),
             'batch_size': kwargs.get('batch_size', 4),
         }
         return config
@@ -64,7 +64,8 @@ class InferenceProcessor:
         for key, val in self._config.items():
             print(f'    {key} -> {val}')
 
-    def load_raw_data_dict(self, dmri_in, bvec_in, bvec_out, mask):
+    @staticmethod
+    def load_raw_data_dict(dmri_in, bvec_in, bvec_out, mask):
         '''Loads dMRI data into memory and zips to datasets dict
 
         Args:
@@ -226,7 +227,8 @@ class InferenceProcessor:
         # Run model inference
         datasets['dmri_out'] = self.model.predict(data, verbose=1)
 
-    def save_dmri_data(self, datasets, context, fpath):
+    @staticmethod
+    def save_dmri_data(datasets, context, fpath):
         '''Saves dmri_out within datasets dict
 
         Args:
@@ -237,3 +239,38 @@ class InferenceProcessor:
             fpath (str): Filepath to save
         '''
         save_nifti(datasets['dmri_out'], context['affine'], fpath)
+
+
+class InferenceProcessorNorm(InferenceProcessor):
+    '''Inference Processor with individual xmax normalisation'''
+
+    def __init__(self, model, **kwargs):
+        '''Initializes processor object
+
+        Args:
+            model (tf.keras.models.Model): Compiled model with weights
+                already loaded.
+        Keyword Args:
+            shell (int): Selected shell
+                Default: 1000
+            patch_shape_in (Tuple[int,int,int]): shape of input patches to train/infer with
+                Default: determined by `model`.
+            pcent (int): Maximum percentile normalisation. Default: 99
+            batch_size (int): Batch size of dataset for inference/training.
+                Default: 4
+        '''
+        super().__init__(model, **kwargs)
+        self.model = model
+        self._scaler = ScalerNorm
+
+    def _get_config(self, kwargs):
+        '''Sets internal default keyword args `self._config`'''
+        config = {
+            'shell': kwargs.get('shell', 1000),
+            'patch_shape_in': kwargs.get(
+                'patch_shape_in', self.model.input[0].shape[-3:]
+            ),
+            'pcent': kwargs.get('pcent', 99),
+            'batch_size': kwargs.get('batch_size', 4),
+        }
+        return config

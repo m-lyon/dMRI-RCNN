@@ -74,6 +74,7 @@ optional arguments:
   -m {1,3}, --model-dim {1,3}
                         Model dimensionality, choose either 1 or 3. Default: 3.
   -c, --combined        Use combined shell model. Currently only applicable with 3D model and 10 q_in.
+  -n, --norm            Perform normalisation using 99 percentile of data. Only implemented with --combined flag, and only for q_in = 10
   -b BATCH_SIZE, --batch-size BATCH_SIZE
                         Batch size to run model inference with.
 ```
@@ -82,11 +83,13 @@ optional arguments:
 
 
 #### Example
-The following example performs `b = 1000` inference with the 3D dMRI RCNN.
+The following example performs `b = 1000` inference with the 3D dMRI RCNN on **HCP data**.
 ```
 $ run_dmri_rcnn.py -dmri_in context_dmri.nii.gz -bvec_in context_bvecs -bvec_out target_bvecs -mask brain_mask.nii.gz -dmri_out inferred_dmri.nii.gz -s 1000 -m 3
 ```
 This example would take ~2 minutes to infer 80 volumes on an `NVIDIA RTX 3080`.
+
+To perform inference on data outside of the HCP dataset, use the flags `-c` and `-n`. This is currently only implemented for $q_{in} = 10$.
 
 ## Training
 Below are details on how to train a given model, and the preprocessing steps involved.
@@ -102,8 +105,8 @@ from dmri_rcnn.core import io
 from dmri_rcnn.core.processing import save_tfrecord_data
 
 # First load a subject into memory
-dmri = io.load_nifti('/path/to/dmri/data.nii.gz')
-mask = io.load_nifti('/path/to/brain/mask.nii.gz', dtype=np.int8)
+dmri, _ = io.load_nifti('/path/to/dmri/data.nii.gz')
+mask, _ = io.load_nifti('/path/to/brain/mask.nii.gz', dtype=np.int8)
 bvecs = io.load_bvec('/path/to/dmri/bvecs') # bvecs & bvals should be in FSL format
 bvals = io.load_bval('/path/to/dmri/bvals')
 
@@ -112,7 +115,8 @@ dmri, mask = io.autocrop_dmri(dmri, mask)
 
 # .tfrecord format uses a maximum filesize of 2 GiB, therefore for high
 # resolution dMRI data, the image may need to be split into smaller parts
-# to do this use the function below.
+# to do this use the function below. It is recommended to first try to save
+# each subject as a whole before splitting the image into separate files.
 dmri_list = io.split_image_to_octants(dmri)
 mask_list = io.split_image_to_octants(mask)
 
@@ -130,7 +134,7 @@ Once pre-processing is complete, you can then train a model.
 ```python
 from dmri_rcnn.core.weights import get_weights
 from dmri_rcnn.core.model import get_1d_autoencoder, get_3d_autoencoder
-from dmri_rcnn.core.processing import TrainingProcessor
+from dmri_rcnn.core.processing import TrainingProcessor, TrainingProcessorNorm
 
 # If we want to fine-tune the model we can load the previously obtained weights.
 # In this example we'll load the weights for the 3D RCNN trained on the b = 1000
@@ -142,6 +146,12 @@ model = get_3d_autoencoder(weights) # Omit the weights argument to load without 
 
 # Instantiate the training processor
 processor = TrainingProcessor(shells=[1000], q_in=6)
+
+# If using non-HCP data, the TrainingProcessorNorm should be used instead.
+processor = TrainingProcessorNorm(shells=[1000], q_in=6)
+
+# Important: Here our q_in = 6, and the processor uses a default q_out = 10, therefore our dmri data must
+# contain at least 16 volumes.
 
 # Load dataset mapping
 train_data = processor.load_data(['/path/to/train_data0.tfrecord', '/path/to/train_data1.tfrecord'])

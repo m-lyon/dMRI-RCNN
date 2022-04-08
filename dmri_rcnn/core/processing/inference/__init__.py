@@ -1,2 +1,2 @@
 '''Inference Processor API'''
-from .processor import InferenceProcessor
+from .processor import InferenceProcessor, InferenceProcessorNorm

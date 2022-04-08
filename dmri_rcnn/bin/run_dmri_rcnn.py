@@ -6,7 +6,7 @@ import argparse
 from dmri_rcnn.core.io import load_bvec
 from dmri_rcnn.core.weights import get_weights
 from dmri_rcnn.core.model import get_1d_autoencoder, get_3d_autoencoder
-from dmri_rcnn.core.processing import InferenceProcessor
+from dmri_rcnn.core.processing import InferenceProcessor, InferenceProcessorNorm
 
 
 def get_q_in(bvec_in, bvec_out):
@@ -43,7 +43,9 @@ def main(args):
     '''Kicks off main script'''
     args.q_in, args.q_out = get_q_in(args.bvec_in, args.bvec_out)
     print_args(args)
-    if args.combined:
+    if args.combined and args.norm:
+        weights = get_weights(args.model_dim, 'all_norm', args.q_in)
+    elif args.combined:
         weights = get_weights(args.model_dim, 'all', args.q_in)
     else:
         weights = get_weights(args.model_dim, args.shell, args.q_in)
@@ -53,7 +55,10 @@ def main(args):
     else:
         model = get_1d_autoencoder(weights)
 
-    processor = InferenceProcessor(model, shell=args.shell, batch_size=args.batch_size)
+    if args.norm:
+        processor = InferenceProcessorNorm(model, shell=args.shell, batch_size=args.batch_size)
+    else:
+        processor = InferenceProcessor(model, shell=args.shell, batch_size=args.batch_size)
     processor.run_subject(
         args.dmri_in, args.bvec_in, args.bvec_out, args.mask, args.dmri_out
     )
@@ -121,6 +126,15 @@ if __name__ == '__main__':
         action='store_true',
         default=False,
         help='Use combined shell model. Currently only applicable with 3D model and 10 q_in.',
+    )
+    parser.add_argument(
+        '-n',
+        '--norm',
+        dest='norm',
+        action='store_true',
+        default=False,
+        help='Perform normalisation using 99 percentile of data. '
+        + 'Only implemented with --combined flag, and only for q_in = 10',
     )
     parser.add_argument(
         '-b',
