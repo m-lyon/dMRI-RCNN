@@ -74,6 +74,9 @@ WEIGHT_URLS = {
         'all': {
             10: ZenodoWeight(6397221, 2),
         },
+        'all_norm':{
+            10: ZenodoWeight(6415106, 2),
+        }
     },
 }
 
@@ -101,8 +104,8 @@ def get_weights(model_dim: int, shell: Union[int, str], q_in: int) -> str:
 
     Args:
         model_dim: Model dimensionality, either 1 or 3
-        shell: dMRI shell, either provide int value or "all" str
-            to get model weights for combined model
+        shell: dMRI shell, either provide int value or "all" or "all_norm"
+            str to get model weights for combined model
         q_in: Number of input q-space samples
         combined: Return combined model if available
 
@@ -128,9 +131,7 @@ def get_weights(model_dim: int, shell: Union[int, str], q_in: int) -> str:
         os.makedirs(weight_dir)
 
     for weight in weight_urls:
-        if os.path.exists(os.path.join(weight_dir, weight.fname)):
-            print('Model weights already present.')
-        else:
+        if not os.path.exists(os.path.join(weight_dir, weight.fname)):
             download_url(weight.url, os.path.join(weight_dir, weight.fname))
 
     return os.path.join(weight_dir, 'weights')
