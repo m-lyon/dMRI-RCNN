@@ -12,7 +12,7 @@ install_deps = [
     'tqdm',
 ]
 
-version = '0.3.0'
+version = '0.3.1'
 this_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()

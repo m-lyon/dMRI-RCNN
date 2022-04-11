@@ -114,8 +114,8 @@ def get_weights(model_dim: int, shell: Union[int, str], q_in: int) -> str:
             Will raise a RuntimeError if not found.
     '''
     try:
-        if shell == 'all':
-            weight_dir = os.path.join(LOCAL_DIR, f'{model_dim}D_RCNN', f'{q_in}in')
+        if shell in {'all', 'all_norm'}:
+            weight_dir = os.path.join(LOCAL_DIR, f'{model_dim}D_RCNN', f'{shell}_{q_in}in')
         else:
             weight_dir = os.path.join(
                 LOCAL_DIR, f'{model_dim}D_RCNN', f'b{shell}_{q_in}in'
