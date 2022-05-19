@@ -12,7 +12,14 @@ install_deps = [
     'tqdm',
 ]
 
-version = '0.3.1'
+extra_req = {'sh': ['dipy']}
+scripts = [
+    'dmri_rcnn/bin/run_dmri_rcnn.py',
+    'dmri_rcnn/bin/dmri_rcnn_download_all_weights.py',
+    'dmri_rcnn/bin/dmri_sh_baseline.py',
+]
+
+version = '0.4.0'
 this_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -32,7 +39,8 @@ setup(
     license='MIT License',
     packages=find_namespace_packages(),
     install_requires=install_deps,
-    scripts=['dmri_rcnn/bin/run_dmri_rcnn.py', 'dmri_rcnn/bin/dmri_rcnn_download_all_weights.py'],
+    extras_require=extra_req,
+    scripts=scripts,
     classifiers=[
         'Programming Language :: Python',
         'Operating System :: Unix',

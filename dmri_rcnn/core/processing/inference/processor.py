@@ -13,7 +13,7 @@ class InferenceProcessor:
     '''Inference pipeline for single-shell data'''
 
     def __init__(self, model, **kwargs):
-        '''Initializes processor object
+        '''Initialises processor object
 
         Args:
             model (tf.keras.models.Model): Compiled model with weights
