@@ -11,6 +11,7 @@ This project enhances the angular resolution of dMRI data through the use of a R
 * [Inference](#inference)
 * [Training](#training)
 * [Docker](#docker)
+* [Spherical Harmonic Baseline](#spherical-harmonic-baseline)
 
 ## Installation
 `dMRI-RCNN` can be installed by via pip:
@@ -175,6 +176,39 @@ To use `dMRI-RCNN` with the GPU, first ensure the [appropriate NVIDIA prerequisi
 ```bash
 sudo docker run --gpus all -v /absolute/path/to/my/data/directory:/data -it -t mlyon93/dmri-rcnn-gpu:latest
 ```
+
+## Spherical Harmonic Baseline
+To run the Spherical Harmonic baseline model used in the paper, first ensure `dipy` is installed. You can install `dipy` directly via `pip` or by installing this project using the following prompt.
+
+```
+pip install dmri-rcnn[sh]
+```
+
+### Commandline
+Bring up the following help message via `dmri_sh_baseline.py -h`:
+
+```
+usage: dMRI Spherical Harmonic Baseline Inference [-h] -dmri_in DMRI_IN -bvec_in BVEC_IN -bvec_out BVEC_OUT -dmri_out DMRI_OUT -s SHELL
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -dmri_in DMRI_IN      Context dMRI NIfTI volume. Must be single-shell and contain q_in 3D volumes
+  -bvec_in BVEC_IN      Context b-vectory text file. Whitespace delimited with 3 rows and q_in columns
+  -bvec_out BVEC_OUT    Target b-vector text file. Whitespace delimited with 3 rows and q_out columns
+  -dmri_out DMRI_OUT    Inferred dMRI NIfTI volume. This will contain q_out inferred volumes.
+  -s SHELL, --shell SHELL
+                        Shell to perform inference on. Must be same shell as context/target dMRI and b-vecs
+```
+
+#### Example
+
+The following example performs `b = 1000` spherical harmonic inference.
+```
+$ dmri_sh_baseline.py -dmri_in context_dmri.nii.gz -bvec_in context_bvecs -bvec_out target_bvecs -dmri_out inferred_dmri.nii.gz -s 1000
+```
+
+The use or inspect the spherical harmonic model, the code can be found within `dmri_rcnn.core.processing.sph_harmonic`.
+
 
 ## Roadmap
 Future Additions & Improvements:
