@@ -67,7 +67,7 @@ The script will create the following data:
   * Dimensions: `(i, j, k, q_out)`.
     * `q_out` number of samples within the q-space dimension. This can any number, though using higher numbers will require more GPU memory if using.
 
-### Command-line {#inference-command}
+### Command-line
 
 Bring up the following help message via `run_dmri_rcnn.py -h`:
 
@@ -93,7 +93,7 @@ optional arguments:
 
 ***N.B.** Weights are downloaded and stored within `~/.dmri_rcnn` by default. To store weights in a different directory, set environment variable `DMRI_RCNN_DIR="/your/custom/directory"`*
 
-#### Example {#inference-example}
+#### Example
 
 The following example performs `b = 1000` inference with the 3D dMRI RCNN on **HCP data**.
 
@@ -206,7 +206,7 @@ To run the Spherical Harmonic baseline model used in the paper, first ensure `di
 pip install dmri-rcnn[sh]
 ```
 
-### Command-line {#training-command}
+### Command-line
 
 Bring up the following help message via `dmri_sh_baseline.py -h`:
 
@@ -223,7 +223,7 @@ optional arguments:
                         Shell to perform inference on. Must be same shell as context/target dMRI and b-vecs
 ```
 
-#### Example {#training-example}
+#### Example
 
 The following example performs `b = 1000` spherical harmonic inference.
 
