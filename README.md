@@ -4,7 +4,10 @@
 
 [![PyPI version](https://badge.fury.io/py/dmri-rcnn.svg)](https://badge.fury.io/py/dmri-rcnn)
 
-This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN.
+This project enhances the angular resolution of dMRI data through the use of a Recurrent CNN. This codebase is associated with the
+following paper. Please cite the paper if you use this model:
+
+[Angular Super-Resolution in Diffusion MRI with a 3D Recurrent Convolutional Autoencoder](https://arxiv.org/abs/2203.15598) [MIDL 2022]
 
 ## Table of contents
 
