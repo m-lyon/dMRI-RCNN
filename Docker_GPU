@@ -1,6 +1,6 @@
 
 FROM nvcr.io/nvidia/tensorflow:22.03-tf2-py3
-RUN pip install --no-deps einops==0.4.1 pyparsing==3.0.7 packaging==21.3 nibabel==3.2.2 tqdm==4.63.0 dmri-rcnn==0.3.1
+RUN pip install --no-deps einops==0.4.1 pyparsing==3.0.7 packaging==21.3 nibabel==3.2.2 tqdm==4.63.0 dmri-rcnn==0.4.0
 ENV HOME /root
 WORKDIR $HOME
 COPY weights .dmri_rcnn
