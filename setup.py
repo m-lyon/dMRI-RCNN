@@ -5,7 +5,7 @@ import os
 from setuptools import setup, find_namespace_packages
 
 install_deps = [
-    'tensorflow>=2.6.0',
+    'tensorflow>=2.6,<2.8',
     'numpy',
     'einops',
     'nibabel',
@@ -19,7 +19,7 @@ scripts = [
     'dmri_rcnn/bin/dmri_sh_baseline.py',
 ]
 
-version = '0.4.1'
+version = '0.4.2'
 this_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
